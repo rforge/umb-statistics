@@ -1,0 +1,11 @@
+Package: needleman.wunsch
+Type: Package
+Title: Needleman Wunsch computation
+Version: 1.4
+Date: 2012-12-21
+Author: Kristian Hovde Liland
+Maintainer: Kristian Hovde Liland <kristian.liland@umb.no>
+Description: Several tools for Needleman Wunsch of global and semi-global alignments.
+License: GPL2
+Depends: Rcpp (>= 0.9.12)
+LinkingTo: Rcpp
