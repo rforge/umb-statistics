@@ -1,0 +1,6 @@
+#import(stats)
+exportPattern("^[[:alpha:]]+")
+
+#export(anova.lm, Anova.lm, AnovaMix, effect.labels, 
+#	fparse, hijack, is.balanced,
+#	print.AnovaMix, random.worker, rparse)
