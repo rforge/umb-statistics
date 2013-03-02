@@ -1,6 +1,7 @@
 \name{PRESS}
 \alias{PRESS}
 \alias{PRESS.res}
+\alias{PRESS.pred}
 \alias{R2pred}
 \alias{RMSEP}
 \title{
@@ -14,6 +15,7 @@ R2pred(object = NULL)
 RMSEP(object)
 PRESS(object = NULL)
 PRESS.res(object = NULL)
+PRESS.pred(object = NULL)
 }
 \arguments{
   \item{object}{
@@ -39,5 +41,6 @@ RMSEP(mod)
 R2pred(mod)
 PRESS(mod)
 PRESS.res(mod)
+PRESS.pred(mod)
 }
 \keyword{ Regression }
