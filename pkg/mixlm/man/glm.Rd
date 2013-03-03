@@ -340,9 +340,9 @@ summary(glm(lot2 ~ log(u), data=clotting, family=Gamma))
 
 # Mixed model example
 dataset   <- data.frame(y=rnorm(8), x=factor(c(rep(1,4),rep(0,4))), z=factor(rep(c(1,0),4)))
-GLM       <- glm(y  ~ x+r(z ), family=gaussian(identity), data=dataset)
+GLM       <- glm(y  ~ x+r(z), family=gaussian(identity), data=dataset)
 summary(GLM)
-Anova(GLM,test='chisq',type=3)
+Anova(GLM,test='Chisq',type=3)
 logLik(GLM)
 
 \dontrun{

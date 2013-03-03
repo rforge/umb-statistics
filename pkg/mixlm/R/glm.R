@@ -36,7 +36,7 @@ glm <- function(formula, family = gaussian, data, weights,
 			}
 			if(!require(lme4))
 				stop("Package lme4 required")
-			object <- lme4::glmer(rw$reml.formula, data, family = family, REML = REML, contrasts = contrasts, na.action = na.action, model = model, ...)
+			object <- lme4::glmer(rw$reml.formula, data, family = family, REML = REML, contrasts = contrasts, na.action = na.action, ...)
 			object@call <- call
 			return(object)
 		}
