@@ -6,7 +6,7 @@ Date: 2013-01-21
 Author: Kristian Hovde Liland, Solve Sæbø
 Maintainer: Kristian Hovde Liland <kristian.liland@umb.no>
 Encoding: latin1
-Depends: R (>= 2.14.0), base, tcltk, pls, MASS, leaps, mvtnorm, gmodels, multcomp, abind, lattice, xtable, pbkrtest, e1071, mixlm (>= 0.6.0)
+Depends: R (>= 2.14.0), base, tcltk, pls, MASS, leaps, mvtnorm, gmodels, multcomp, abind, lattice, xtable, pbkrtest, e1071, mixlm (>= 0.6.1)
 Imports: Rcmdr (>= 1.9-4), RcmdrPlugin.DoE
 Suggests: lme4
 Description: This package provides an Rcmdr "plug-in" extending some functions of linear models and providing an interface to PLS, LDA and QDA.

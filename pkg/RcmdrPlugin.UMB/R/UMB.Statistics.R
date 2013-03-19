@@ -328,15 +328,15 @@ deviance_tests <- function(){
 			saturated.m$df.residual <- tmp.mod$n-saturated.m$edf
 			class(saturated.m) <- "polr"
 		} else {
-			saturated.m <- update(tmp.mod,paste("~",paste(fparse(formula(tmp.mod)),sep="",collapse="*"),sep=""))
+			saturated.m <- update(tmp.mod,paste("~ factor(",paste(fparse(formula(tmp.mod)),sep="",collapse=")*factor("),")",sep=""))
 		}
 		intercept.m <- update(tmp.mod,~1)
 		if(is.logical(all.equal(saturated.m,tmp.mod))){
-			A <- anova(intercept.m, tmp.mod)
+			A <- anova(intercept.m, tmp.mod, test="Chisq")
 			if(colnames(A)[1]=="Model")
 				A[1] <- c("No effects",ActiveModel())
 		} else {
-			A <- anova(intercept.m, tmp.mod, saturated.m)
+			A <- anova(intercept.m, tmp.mod, saturated.m, test="Chisq")
 			if(colnames(A)[1]=="Model")
 				A[1] <- c("No effects",ActiveModel(),"Saturated")
 		}
