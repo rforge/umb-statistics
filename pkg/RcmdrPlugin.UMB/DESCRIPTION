@@ -1,8 +1,8 @@
 Package: RcmdrPlugin.UMB
 Type: Package
 Title: R Commander Plug-In for statistics at UMB
-Version: 1.5.2
-Date: 2013-01-21
+Version: 1.5.7
+Date: 2013-04-03
 Author: Kristian Hovde Liland, Solve Sæbø
 Maintainer: Kristian Hovde Liland <kristian.liland@umb.no>
 Encoding: latin1

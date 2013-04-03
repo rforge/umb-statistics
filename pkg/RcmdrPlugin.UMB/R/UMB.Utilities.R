@@ -2,6 +2,10 @@
 
 ## Utility functions for RcmdrPlugin.UMB
 
+###################
+# Nothing (to make menus work)
+dc <- function(){}
+
 ################################
 # Model and data availability
 aovP <- function() lmP()

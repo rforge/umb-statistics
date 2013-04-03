@@ -582,9 +582,8 @@ discriminantAnalysis <- function(){
     else {
       command <- paste(command, ")", sep="")
     }
-#    assign(modelValue, justDoIt(command), envir=.GlobalEnv)
-#    logger(paste(modelValue," <- ", command, sep=""))
-    doItAndPrint(paste(modelValue," <- ", command, sep=""))
+    assign(modelValue, justDoIt(command), envir=.GlobalEnv)
+    logger(paste(modelValue," <- ", command, sep=""))
     if(the.cv == gettextRcmdr("0")){
       doItAndPrint(paste("confusion(", ActiveDataSet(), "$", y, "[", the.subset, "]", ", predict(", modelValue, ")$class)  # confusion matrix", sep=""))
     }
@@ -598,7 +597,7 @@ discriminantAnalysis <- function(){
         doItAndPrint(paste("predict(", modelValue, ")$class  # Predicted classes", sep=""))
       }
       else {
-        doItAndPrint(paste(modelValue, "$class  # Predicted classes", sep=""))
+        doItAndPrint(paste(command.cv, "$class  # Predicted classes", sep=""))
       }
     }
     if(the.predSave == gettextRcmdr("1")){
@@ -608,8 +607,8 @@ discriminantAnalysis <- function(){
         logger(paste(.activeDataSet, "$DA.class <- predict(", modelValue, ")$class", sep=""))
       }
       else {
-        justDoIt(paste(.activeDataSet, "$DA.class <- ", modelValue, "$class", sep=""))
-        logger(paste(.activeDataSet, "$DA.class <- ", modelValue, "$class", sep=""))
+        justDoIt(paste(.activeDataSet, "$DA.class <- ", command.cv, "$class", sep=""))
+        logger(paste(.activeDataSet, "$DA.class <- ", command.cv, "$class", sep=""))
       }
       activeDataSet(.activeDataSet)
     }
@@ -620,7 +619,7 @@ discriminantAnalysis <- function(){
         doItAndPrint(paste("predict(", modelValue, ")$posterior  # Posterior probabilities", sep=""))
       }
       else {
-        doItAndPrint(paste(modelValue, "$posterior  # Posterior probabilities", sep=""))
+        doItAndPrint(paste(command.cv, "$posterior  # Posterior probabilities", sep=""))
       }
     }
     if(the.postSave == gettextRcmdr("1")){
@@ -630,8 +629,8 @@ discriminantAnalysis <- function(){
         logger(paste(.activeDataSet, "$DA.posterior <- predict(", modelValue, ")$posterior", sep=""))
       }
       else {
-        justDoIt(paste(.activeDataSet, "$DA.posterior <- ", modelValue, "$posterior", sep=""))
-        logger(paste(.activeDataSet, "$DA.posterior <- ", modelValue, "$posterior", sep=""))
+        justDoIt(paste(.activeDataSet, "$DA.posterior <- ", command.cv, "$posterior", sep=""))
+        logger(paste(.activeDataSet, "$DA.posterior <- ", command.cv, "$posterior", sep=""))
       }
       activeDataSet(.activeDataSet)
     }

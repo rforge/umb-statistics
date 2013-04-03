@@ -32,4 +32,5 @@ if (getRversion() >= "2.15.1")
 		"regionsVariable", "contoursVariable", "samplesVariable", "logVariable", "logFrame", "rgl.cur",
 		"outmat,rss,rsq,adjr2", "cp", ".x", "type1Variable", "type2Variable", "type3Variable", "mix.model",
 		"base", "high", "newDataSet", ".activeDataSet", ".activeModel", ".activeDataSet","outmat","rss",
-		"rsq","adjr2","pushViewport","viewport","upViewport"))
+		"rsq","adjr2","pushViewport","viewport","upViewport","pressresVariable","presspredVariable",
+		 "selectFrame1", "selectFrame2", "selectFrame3", "selectFrame4", "selectFrame5", "selectFrame6"))
