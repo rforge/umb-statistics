@@ -4,7 +4,7 @@
 
 ###################
 # Nothing (to make menus work)
-dc <- function(){}
+.dc <- function(){}
 
 ################################
 # Model and data availability
