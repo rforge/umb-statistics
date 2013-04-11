@@ -23,6 +23,7 @@
 # Covariance matrix
 covarianceMatrix <- function(){
   initializeDialog(title=gettextRcmdr("Covariance/correlation matrix")) # Window heading
+  initial.group <- NULL
   # Prepare selection box and radio buttons
   xBox <- variableListBox(top, Numeric(), selectmode="multiple", title=gettextRcmdr("Variables (pick two or more)"))
   wBox <- variableListBox(top, c("-none-", Numeric()), selectmode="single", title=gettextRcmdr("Weights (pick zero or one)"))
@@ -30,6 +31,10 @@ covarianceMatrix <- function(){
                labels=gettextRcmdr(c("Pearson product-moment", "Spearman rank-order")), title=gettextRcmdr("Type (unweighted)"))
   radioButtons(name="covCor", buttons=c("covariance", "correlation"), values=c("covariance", "correlation"),
                labels=gettextRcmdr(c("Covariance", "Correlation")), title=gettextRcmdr("Output"))
+  groupsBox(recall=covarianceMatrix, label=gettextRcmdr("Compute by:"), 
+            initialLabel=gettextRcmdr("Compute by groups"), 
+            initialGroup=initial.group)
+
   onOK <- function(){ # Actions to perform
     covariances <- tclvalue(covariancesVariable)
     covCor <- tclvalue(covCorVariable)
@@ -42,36 +47,63 @@ covarianceMatrix <- function(){
     closeDialog()
     x <- paste('"', x, '"', sep="")
     .activeDataSet <- ActiveDataSet()
-    if(length(w)>0 && w !="-none-"){
-      if(covCor=="correlation"){
-        doItAndPrint(paste("cov.wt(", .activeDataSet, "[,c(", paste(x, collapse=","),
-                           ")], wt=", .activeDataSet, "$", w ,", cor=TRUE)$cor", sep=""))
-      } else {
-        doItAndPrint(paste("cov.wt(", .activeDataSet, "[,c(", paste(x, collapse=","),
-                           ")], wt=", .activeDataSet, "$", w ,")$cov", sep=""))
-      }
-    } else {
-      type <- ifelse(covCor=="correlation","cor","cov")
-      if (covariances == "Pearson"){
-        doItAndPrint(paste(type, "(", .activeDataSet, "[,c(", paste(x, collapse=","),
-                           ')], use="complete.obs")', sep=""))
-      }
-      else if (covariances == "Spearman"){
-        logger("# Spearman rank-order covariances")
-        doItAndPrint(paste(type, "(", .activeDataSet, "[,c(", paste(x, collapse=","),
-                           ')], use="complete.obs", method="spearman")', sep=""))
-      }
-    }
+	if(.groups==FALSE){
+		if(length(w)>0 && w !="-none-"){
+		  if(covCor=="correlation"){
+			doItAndPrint(paste("cov.wt(", .activeDataSet, "[,c(", paste(x, collapse=","),
+							   ")], wt=", .activeDataSet, "$", w ,", cor=TRUE)$cor", sep=""))
+		  } else {
+			doItAndPrint(paste("cov.wt(", .activeDataSet, "[,c(", paste(x, collapse=","),
+							   ")], wt=", .activeDataSet, "$", w ,")$cov", sep=""))
+		  }
+		} else {
+		  type <- ifelse(covCor=="correlation","cor","cov")
+		  if (covariances == "Pearson"){
+			doItAndPrint(paste(type, "(", .activeDataSet, "[,c(", paste(x, collapse=","),
+							   ')], use="complete.obs")', sep=""))
+		  }
+		  else if (covariances == "Spearman"){
+			logger("# Spearman rank-order covariances")
+			doItAndPrint(paste(type, "(", .activeDataSet, "[,c(", paste(x, collapse=","),
+							   ')], use="complete.obs", method="spearman")', sep=""))
+		  }
+		}
+	} else {
+		eval(parse(text=paste(".levels <- levels(", .activeDataSet, "$", .groups, ")", sep="")))
+		for(i in 1:length(.levels)){
+			if(length(w)>0 && w !="-none-"){
+			  if(covCor=="correlation"){
+				doItAndPrint(paste("cov.wt(", .activeDataSet, "[", .activeDataSet, "$", .groups, "=='", .levels[i] ,"',c(", paste(x, collapse=","),
+								   ")], wt=", .activeDataSet, "$", w ,"[", .activeDataSet, "$", .groups, "=='", .levels[i] ,"'], cor=TRUE)$cor", sep=""))
+			  } else {
+				doItAndPrint(paste("cov.wt(", .activeDataSet, "[", .activeDataSet, "$", .groups, "=='", .levels[i] ,"',c(", paste(x, collapse=","),
+								   ")], wt=", .activeDataSet, "$", w ,"[", .activeDataSet, "$", .groups, "=='", .levels[i] ,"'])$cov", sep=""))
+			  }
+			} else {
+			  type <- ifelse(covCor=="correlation","cor","cov")
+			  if (covariances == "Pearson"){
+				doItAndPrint(paste(type, "(", .activeDataSet, "[", .activeDataSet, "$", .groups, "=='", .levels[i] ,"',c(", paste(x, collapse=","),
+								   ')], use="complete.obs")', sep=""))
+			  }
+			  else if (covariances == "Spearman"){
+				logger("# Spearman rank-order covariances")
+				doItAndPrint(paste(type, "(", .activeDataSet, "[", .activeDataSet, "$", .groups, "=='", .levels[i] ,"',c(", paste(x, collapse=","),
+								   ')], use="complete.obs", method="spearman")', sep=""))
+			  }
+			}
+		}
+	}
     tkfocus(CommanderWindow())
   }
   # Set up GUI
   OKCancelHelp(helpSubject="cov")
   tkgrid(getFrame(xBox), sticky="nw", row=1, column=1)
   tkgrid(getFrame(wBox), sticky="nw", row=1, column=2)
-  tkgrid(covariancesFrame, sticky="w", row=2, column=1)
-  tkgrid(covCorFrame, sticky="w", row=2, column=2)
-  tkgrid(buttonsFrame, sticky="w", row=3, column=1, columnspan=2)
-  dialogSuffix(rows=3, columns=2)
+  tkgrid(groupsFrame, sticky = "w", row=2, column=1)
+  tkgrid(covariancesFrame, sticky="w", row=3, column=1)
+  tkgrid(covCorFrame, sticky="w", row=3, column=2)
+  tkgrid(buttonsFrame, sticky="w", row=4, column=1, columnspan=2)
+  dialogSuffix(rows=4, columns=2)
 }
 
 ####################################

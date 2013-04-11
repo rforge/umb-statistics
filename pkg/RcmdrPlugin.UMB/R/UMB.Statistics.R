@@ -41,7 +41,7 @@ DA.scores <- function(object=NULL){
 	the.means <- matrix(0, n[2], g)
 	the.covs  <- list()
 	for(i in 1:g){ # Compute group-wise means and covariances
-		the.means[,i] <- apply(X[index.g[[i]],],2,mean)
+		the.means[,i] <- apply(X[index.g[[i]],,drop=FALSE],2,mean)
 		the.covs[[i]] <- var(X[index.g[[i]],])
 	}
 	S <- matrix(0, n[2],n[2])
