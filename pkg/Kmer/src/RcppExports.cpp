@@ -6,15 +6,16 @@
 using namespace Rcpp;
 
 // Kmer_matrix
-IntegerMatrix Kmer_matrix(SEXP seqs, int K);
-RcppExport SEXP Kmer_Kmer_matrix(SEXP seqsSEXP, SEXP KSEXP) {
+IntegerMatrix Kmer_matrix(SEXP seqs, int K, bool names);
+RcppExport SEXP Kmer_Kmer_matrix(SEXP seqsSEXP, SEXP KSEXP, SEXP namesSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< SEXP >::type seqs(seqsSEXP );
         Rcpp::traits::input_parameter< int >::type K(KSEXP );
-        IntegerMatrix __result = Kmer_matrix(seqs, K);
+        Rcpp::traits::input_parameter< bool >::type names(namesSEXP );
+        IntegerMatrix __result = Kmer_matrix(seqs, K, names);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

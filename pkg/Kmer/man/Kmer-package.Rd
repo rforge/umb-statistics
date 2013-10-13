@@ -23,7 +23,8 @@
   Please don't.
 }
 \examples{
-system.time(a <- Kmer(c("AAACGTTTT","GTTT"),8))
+system.time(a <- Kmer(c("AAACGTTTT","GTTT"),3,TRUE))
 dim(a)
 sum(a)
+print(a)
 }

@@ -2,7 +2,7 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-IntegerMatrix Kmer_matrix( SEXP seqs, int K ) {
+IntegerMatrix Kmer_matrix( SEXP seqs, int K, bool names ) {
   
   Rcpp::List strings(seqs);
   int num_strings = strings.length();
@@ -27,6 +27,29 @@ IntegerMatrix Kmer_matrix( SEXP seqs, int K ) {
       
       ++X(i, where);
     }
+  }
+
+
+  if(names){
+    int N = pow(4,K);
+    Rcpp::CharacterVector ACGT = Rcpp::CharacterVector::create("A","C","G","T");
+    Rcpp::CharacterVector ACGTs(N);
+    std::vector< std::vector< std::string > > matr;
+    matr.resize( K , std::vector<std::string>( N ) );
+    Rcpp::CharacterVector cnms(N);
+    for(int i=0; i<K; i++){
+      ACGTs = rep(rep_each(ACGT, pow(4,(K-1-i))), pow(4,i));
+      matr[i] = Rcpp::as< std::vector< std::string > >(ACGTs);
+    }
+    for(int i=0; i<N; i++){
+      std::stringstream ss;
+      for(int j=0; j<K; j++){
+        ss << matr[j][i];
+      }
+      cnms[i] = ss.str();      
+    }
+    Rcpp::List dimnms = Rcpp::List::create(R_NilValue, cnms);
+    X.attr("dimnames") = dimnms;
   }
   
   return X;

@@ -1,6 +1,8 @@
 # Main K-mer matrix function
-Kmer <- function(Seq,K){
-  Kmer_matrix(char2int(Seq),K)
+Kmer <- function(Seq, K, names=FALSE){
+  X <- Kmer_matrix(char2int(Seq),K,names)
+  rownames(X) <- names(Seq)
+  X
 }
 
 # Recode character to integer vectors
