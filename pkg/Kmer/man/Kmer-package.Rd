@@ -27,4 +27,6 @@ system.time(a <- Kmer(c("AAACGTTTT","GTTT"),3,TRUE))
 dim(a)
 sum(a)
 print(a)
+system.time(b <- Kmer_classes(c("AAACGTTTT","GTTT"),3,TRUE,c("Fish","Coconut")))
+print(b)
 }

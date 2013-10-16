@@ -1,8 +1,8 @@
 Package: Kmer
 Type: Package
 Title: Computes a matrix of K-mer counts.
-Version: 0.2
-Date: 2013-10-13
+Version: 0.3
+Date: 2013-10-16
 Author: Kristian Hovde Liland
 Maintainer: Kristian Hovde Liland <kristian.liland@umb.no>
 Description: Systematic counting of all K-mers in sequences
