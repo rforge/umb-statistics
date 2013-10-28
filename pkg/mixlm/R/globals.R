@@ -3,5 +3,5 @@
 if (getRversion() >= "2.15.1")  
     globalVariables(c("ActiveModel","ActiveDataSet","balanced",
 	"unrestricted","cl","outmat","rss","rsq","adjr2","cp","activeModel",
-	"rmsep"))
+	"rmsep",".levels"))
 	
