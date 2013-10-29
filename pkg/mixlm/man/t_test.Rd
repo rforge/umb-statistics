@@ -18,15 +18,19 @@ Adaptations of \code{base} t.test to better confrom to text book standards.
 t_test(x, ...)
 z_test(x, ...)
 
-\method{t_test}{default}(x, y = NULL, alternative = c("two.sided", "less", "greater"), mu = 0, paired = FALSE, var.equal = FALSE, conf.level = 0.95, ...)
-\method{z_test}{default}(x, y = NULL, alternative = c("two.sided", "less", "greater"), mu = 0, paired = FALSE, var.equal = FALSE, conf.level = 0.95, sds = NULL, ...)
+\method{t_test}{default}(x, y = NULL, alternative = c("two.sided", "less", "greater"),
+	mu = 0, paired = FALSE, var.equal = FALSE, conf.level = 0.95, ...)
+\method{z_test}{default}(x, y = NULL, alternative = c("two.sided", "less", "greater"),
+	mu = 0, paired = FALSE, var.equal = FALSE, conf.level = 0.95, sds = NULL, ...)
 
 \method{t_test}{formula}(formula, data, subset, na.action, ...)
 \method{z_test}{formula}(formula, data, subset, na.action, ...)
 
 ## Function for summarized data:
-t_test_sum(means, sds, ns, alternative = c("two.sided", "less", "greater"), mu = 0, var.equal = FALSE, conf.level = 0.95, z.test = FALSE, ...)
-z_test_sum(means, sds, ns, alternative = c("two.sided", "less", "greater"), mu = 0, var.equal = FALSE, conf.level = 0.95, z.test = TRUE, ...)
+t_test_sum(means, sds, ns, alternative = c("two.sided", "less", "greater"),
+	mu = 0, var.equal = FALSE, conf.level = 0.95, z.test = FALSE, ...)
+z_test_sum(means, sds, ns, alternative = c("two.sided", "less", "greater"),
+	mu = 0, var.equal = FALSE, conf.level = 0.95, z.test = TRUE, ...)
 }
 \arguments{
   \item{x}{a (non-empty) numeric vector of data values.}

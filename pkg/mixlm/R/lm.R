@@ -243,8 +243,6 @@ lm <- function (formula, data, subset, weights, na.action,
 			mf$formula <- rw$formula
 			rw$unrestricted <- unrestricted
 			if(is.logical(REML)){ # Perform 
-				if(!require(lme4))
-					stop("Package lme4 required")
 				cl[[1]] <- as.name("lmer")
 				cl[["formula"]] <- rw$reml.formula
 				object <- eval(cl,parent.frame())

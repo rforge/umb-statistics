@@ -27,7 +27,10 @@ Kristian Hovde Liland
 \code{\link{lm}}
 }
 \examples{
-mixlm <- lm(y~x*r(z), data = data.frame(y=rnorm(8), x=factor(c(rep(1,4),rep(0,4))), z=factor(rep(c(1,0),4))))
+mixlm <- lm(y~x*r(z),
+			data = data.frame(y = rnorm(8),
+							  x = factor(c(rep(1,4),rep(0,4))),
+							  z = factor(rep(c(1,0),4))))
 \dontrun{
 anova(mixlm)
 }
