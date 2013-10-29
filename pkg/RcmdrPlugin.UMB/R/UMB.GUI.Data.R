@@ -193,9 +193,9 @@ newDataSetOSX <- function() {
     result <- justDoIt(command)
     result <- as.data.frame(lapply(result, function(x) if (is.character(x)) factor(x) else x))
     if (class(result)[1] !=  "try-error"){ 
-			assign(dsnameValue, result, envir=.GlobalEnv)
- 			logger(paste(dsnameValue, "<-", command))
-#	  doItAndPrint(paste(dsnameValue, "<-", command))
+#			assign(dsnameValue, result, envir=.GlobalEnv)
+# 			logger(paste(dsnameValue, "<-", command))
+	  doItAndPrint(paste(dsnameValue, "<-", command))
       if (nrow(get(dsnameValue)) == 0){
         #        	if (eval(parse(text=paste("nrow(", dsnameValue, ")"))) == 0){
         errorCondition(recall=newDataSet, message=gettextRcmdr("empty data set."))
@@ -334,7 +334,6 @@ export.instructions <- function(){
 onExportE <- function() doItAndPrint("toClipboard(popOutput(), dec='.', rcmdr=TRUE)")
 onExportN <- function() doItAndPrint("toClipboard(popOutput(), dec=',', rcmdr=TRUE)")
 toClipboard <- function(object, dec=".", sep="\t", quote=FALSE, rcmdr=FALSE, ...){
-	require(xtable)
 	x <- try(xtable(object),silent = TRUE)
 	if(class(x)[1] == "xtable"){
 		df <- as.data.frame(x)

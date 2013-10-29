@@ -345,7 +345,6 @@ backwardForward <- function(){
 }
 
 bestSubsets <- function(){
-  library(leaps)
   .activeModel <- ActiveModel()
   availableTerms <- justDoIt(paste("attr(",.activeModel,"$terms,'term.labels')",sep=""))
   initializeDialog(title=gettextRcmdr("Best subset regression"))
@@ -562,9 +561,17 @@ postHocGUI <- function(){
   initializeDialog(title=gettextRcmdr("Post hoc pair-wise tests"))
   .activeModel <- ActiveModel()
   effects <- eval(parse(text=paste("attr(terms(formula(",.activeModel,")),'term.labels')", sep="")))
+  if(glmP()){
+	effects <- effects[!grepl(":",effects)]
+  }
   xFrame <- tkframe(top)
-  xBox <- variableListBox(xFrame, effects, selectmode="multiple",
+  if(glmP()){
+    xBox <- variableListBox(xFrame, effects,
                             title=gettextRcmdr("Effects (pick one or more)"))
+  } else {
+    xBox <- variableListBox(xFrame, effects, selectmode="multiple",
+                            title=gettextRcmdr("Effects (pick one or more)"))
+  }
   comboFrame <- tkframe(top)
   levs <- justDoIt(paste(.activeModel, "$xlevels", sep=""))
   levNames <- names(levs)
@@ -590,51 +597,61 @@ postHocGUI <- function(){
 
     the.tukey <- tclvalue(tukeyName)
     if(tclvalue(tukeyTestsVariable)== gettextRcmdr("1")){
-      command <- paste("TukeyHSD(aov(", ActiveModel(), "),",selected,", conf.level=",the.tukey,")",sep="")
+	  if(glmP()){
+		command <- paste("summary(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey')))", sep="")
+	  } else {
+        command <- paste("TukeyHSD(aov(", ActiveModel(), "),",selected,", conf.level=",the.tukey,")",sep="")
+	  }
       doItAndPrint(command)
     } 
     if(tclvalue(tukeyGroupsVariable)== gettextRcmdr("1")){
-      doItAndPrint(paste("cld('TukeyHSD', ", ActiveModel(), ", ", 1-as.numeric(the.tukey), ", ", selected,")", sep=""))
-    }
-
-    the.bonferroni <- tclvalue(bonferroniName)
-    if(tclvalue(bonferroniTestsVariable)== gettextRcmdr("1")){
-      command <- paste("Bonferroni(aov(", ActiveModel(), "),",selected,", conf.level=",the.bonferroni,")",sep="")
+	  if(glmP()){
+		command <- paste("multcomp:::print.cld(multcomp::cld(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey'))))", sep="")
+	  } else {
+		command <- paste("cld('TukeyHSD', ", ActiveModel(), ", ", 1-as.numeric(the.tukey), ", ", selected,")", sep="")
+	  }
       doItAndPrint(command)
     }
-    if(tclvalue(bonferroniGroupsVariable)== gettextRcmdr("1")){
-      doItAndPrint(paste("cld('Bonferroni', ", ActiveModel(), ", ", 1-as.numeric(the.bonferroni), ", ", selected,")", sep=""))
-    }
 
-    the.fisher <- tclvalue(fisherName)
-    if(tclvalue(fisherTestsVariable)== gettextRcmdr("1")){
-      command <- paste("Fisher(aov(", ActiveModel(), "),",selected,", conf.level=",the.fisher,")",sep="")
-      doItAndPrint(command)
-    }
-    if(tclvalue(fisherGroupsVariable)== gettextRcmdr("1")){
-      doItAndPrint(paste("cld('Fisher', ", ActiveModel(), ", ", 1-as.numeric(the.fisher), ", ", selected,")", sep=""))
+	if(!glmP()){
+		the.bonferroni <- tclvalue(bonferroniName)
+		if(tclvalue(bonferroniTestsVariable)== gettextRcmdr("1")){
+		  command <- paste("Bonferroni(aov(", ActiveModel(), "),",selected,", conf.level=",the.bonferroni,")",sep="")
+		  doItAndPrint(command)
+		}
+		if(tclvalue(bonferroniGroupsVariable)== gettextRcmdr("1")){
+		  doItAndPrint(paste("cld('Bonferroni', ", ActiveModel(), ", ", 1-as.numeric(the.bonferroni), ", ", selected,")", sep=""))
+		}
+
+		the.fisher <- tclvalue(fisherName)
+		if(tclvalue(fisherTestsVariable)== gettextRcmdr("1")){
+		  command <- paste("Fisher(aov(", ActiveModel(), "),",selected,", conf.level=",the.fisher,")",sep="")
+		  doItAndPrint(command)
+		}
+		if(tclvalue(fisherGroupsVariable)== gettextRcmdr("1")){
+		  doItAndPrint(paste("cld('Fisher', ", ActiveModel(), ", ", 1-as.numeric(the.fisher), ", ", selected,")", sep=""))
+		}
+		
+		if(length(selectedDunnett)>0){
+		  effect <- valuesLookUp[selectedDunnett,1]
+		  level  <- valuesLookUp[selectedDunnett,2]
+		  command <- paste("levels(", ActiveModel(), "$model[,'", effect, "'])", sep="")
+		  effLevs.orig <- effLevs <- justDoIt(command)
+		  if(effLevs[1]!=level){
+			effLevs <- c(level, effLevs[!is.element(effLevs,level)])
+			command <- paste(ActiveDataSet(), "$", effect, " <- factor(", ActiveDataSet(), "$", effect, ", levels=c('", paste(effLevs,sep="", collapse="', '"), "'))", sep="")
+			doItAndPrint(command)
+			doItAndPrint(paste(ActiveModel(), " <- update(",ActiveModel(),")",sep=""))
+		  }
+		  command <- paste("summary(glht(", ActiveModel(), ", linfct = mcp(", effect, " = 'Dunnett')))", sep="")
+		  doItAndPrint(command)
+		  if(effLevs.orig[1]!=level){
+			command <- paste(ActiveDataSet(), "$", effect, " <- factor(", ActiveDataSet(), "$", effect, ", levels=c('", paste(effLevs.orig,sep="", collapse="', '"), "'))", sep="")
+			doItAndPrint(command)
+			doItAndPrint(paste(ActiveModel(), " <- update(",ActiveModel(),")",sep=""))
+		  }
+		}
 	}
-    
-    if(length(selectedDunnett)>0){
-      require(multcomp)
-      effect <- valuesLookUp[selectedDunnett,1]
-      level  <- valuesLookUp[selectedDunnett,2]
-      command <- paste("levels(", ActiveModel(), "$model[,'", effect, "'])", sep="")
-      effLevs.orig <- effLevs <- justDoIt(command)
-      if(effLevs[1]!=level){
-        effLevs <- c(level, effLevs[!is.element(effLevs,level)])
-        command <- paste(ActiveDataSet(), "$", effect, " <- factor(", ActiveDataSet(), "$", effect, ", levels=c('", paste(effLevs,sep="", collapse="', '"), "'))", sep="")
-        doItAndPrint(command)
-        doItAndPrint(paste(ActiveModel(), " <- update(",ActiveModel(),")",sep=""))
-      }
-      command <- paste("summary(glht(", ActiveModel(), ", linfct = mcp(", effect, " = 'Dunnett')))", sep="")
-      doItAndPrint(command)
-      if(effLevs.orig[1]!=level){
-        command <- paste(ActiveDataSet(), "$", effect, " <- factor(", ActiveDataSet(), "$", effect, ", levels=c('", paste(effLevs.orig,sep="", collapse="', '"), "'))", sep="")
-        doItAndPrint(command)
-        doItAndPrint(paste(ActiveModel(), " <- update(",ActiveModel(),")",sep=""))
-      }
-    }
     closeDialog()
     return()
   }
@@ -654,38 +671,41 @@ postHocGUI <- function(){
   tkgrid(labelRcmdr(tukeyFrameGr, text=gettextRcmdr("Confidence")), tukey, sticky="w")
   tkgrid(tukeyFrameGr, sticky="w", row=3, column=2)
   
-  topFrame2 <- tkframe(top)
-  tkgrid(labelRcmdr(topFrame2, text=gettextRcmdr("Bonferroni"), fg="blue"),sticky="w")
-  tkgrid(topFrame2, row=4, column=1, columnspan=1, sticky="w")
-  checkBoxes(frame="bonferroniFrame", boxes=c("bonferroniTests","bonferroniGroups"), initialValues=c("0","0"),
-             labels=gettextRcmdr(c("Tests","Groups")))
-  tkgrid(bonferroniFrame, row=5, column=1, columnspan=1, rowspan=1, sticky="w")
-  bonferroniName  <- tclVar("0.95")
-  bonferroniFrameGr <- tkframe(top)
-  bonferroni <- ttkentry(bonferroniFrameGr, width="6", textvariable=bonferroniName)
-  tkgrid(labelRcmdr(bonferroniFrameGr, text=gettextRcmdr("Confidence")), bonferroni, sticky="w")
-  tkgrid(bonferroniFrameGr, sticky="w", row=5, column=2)
-  
-  topFrame3 <- tkframe(top)
-  tkgrid(labelRcmdr(topFrame3, text=gettextRcmdr("Fisher"), fg="blue"),sticky="w")
-  tkgrid(topFrame3, row=6, column=1, columnspan=1, sticky="w")
-  checkBoxes(frame="fisherFrame", boxes=c("fisherTests","fisherGroups"), initialValues=c("0","0"),
-             labels=gettextRcmdr(c("Tests","Groups")))
-  tkgrid(fisherFrame, row=7, column=1, columnspan=1, rowspan=1, sticky="w")
-  fisherName  <- tclVar("0.95")
-  fisherFrameGr <- tkframe(top)
-  fisher <- ttkentry(fisherFrameGr, width="6", textvariable=fisherName)
-  tkgrid(labelRcmdr(fisherFrameGr, text=gettextRcmdr("Confidence")), fisher, sticky="w")
-  tkgrid(fisherFrameGr, sticky="w", row=7, column=2)
-  
-  topFrame1 <- tkframe(top)
-  tkgrid(labelRcmdr(topFrame1, text=gettextRcmdr("Dunnet"), fg="blue"),sticky="w")
-  tkgrid(topFrame1, row=8, column=1, columnspan=1, sticky="w")
-  combo <- ttkcombobox(comboFrame, values=values, textvariable=comboVar)
-  tkgrid(labelRcmdr(comboFrame, text=gettextRcmdr("Choose comparison:")), combo, sticky="w")
-  tkgrid(comboFrame, sticky="w", column=1, row=9, columnspan=2)
-  tkgrid(buttonsFrame, sticky="w", column=1, row=10, columnspan=2)
-  dialogSuffix(rows=10, columns=2)
+  if(!glmP()){
+	  topFrame2 <- tkframe(top)
+	  tkgrid(labelRcmdr(topFrame2, text=gettextRcmdr("Bonferroni"), fg="blue"),sticky="w")
+	  tkgrid(topFrame2, row=4, column=1, columnspan=1, sticky="w")
+	  checkBoxes(frame="bonferroniFrame", boxes=c("bonferroniTests","bonferroniGroups"), initialValues=c("0","0"),
+				 labels=gettextRcmdr(c("Tests","Groups")))
+	  tkgrid(bonferroniFrame, row=5, column=1, columnspan=1, rowspan=1, sticky="w")
+	  bonferroniName  <- tclVar("0.95")
+	  bonferroniFrameGr <- tkframe(top)
+	  bonferroni <- ttkentry(bonferroniFrameGr, width="6", textvariable=bonferroniName)
+	  tkgrid(labelRcmdr(bonferroniFrameGr, text=gettextRcmdr("Confidence")), bonferroni, sticky="w")
+	  tkgrid(bonferroniFrameGr, sticky="w", row=5, column=2)
+	  
+	  topFrame3 <- tkframe(top)
+	  tkgrid(labelRcmdr(topFrame3, text=gettextRcmdr("Fisher"), fg="blue"),sticky="w")
+	  tkgrid(topFrame3, row=6, column=1, columnspan=1, sticky="w")
+	  checkBoxes(frame="fisherFrame", boxes=c("fisherTests","fisherGroups"), initialValues=c("0","0"),
+				 labels=gettextRcmdr(c("Tests","Groups")))
+	  tkgrid(fisherFrame, row=7, column=1, columnspan=1, rowspan=1, sticky="w")
+	  fisherName  <- tclVar("0.95")
+	  fisherFrameGr <- tkframe(top)
+	  fisher <- ttkentry(fisherFrameGr, width="6", textvariable=fisherName)
+	  tkgrid(labelRcmdr(fisherFrameGr, text=gettextRcmdr("Confidence")), fisher, sticky="w")
+	  tkgrid(fisherFrameGr, sticky="w", row=7, column=2)
+	  
+	  topFrame1 <- tkframe(top)
+	  tkgrid(labelRcmdr(topFrame1, text=gettextRcmdr("Dunnet"), fg="blue"),sticky="w")
+	  tkgrid(topFrame1, row=8, column=1, columnspan=1, sticky="w")
+	  combo <- ttkcombobox(comboFrame, values=values, textvariable=comboVar)
+	  tkgrid(labelRcmdr(comboFrame, text=gettextRcmdr("Choose comparison:")), combo, sticky="w")
+	  tkgrid(comboFrame, sticky="w", column=1, row=9, columnspan=2)
+  }
+  nrow <- ifelse(glmP(),4,10)
+  tkgrid(buttonsFrame, sticky="w", column=1, row=nrow, columnspan=2)
+  dialogSuffix(rows=nrow, columns=2)
 }
 
 

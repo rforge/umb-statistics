@@ -101,6 +101,7 @@
 \alias{plsRegressionModel}
 \alias{PoissonDistributionPlotUMB}
 \alias{postHocGUI}
+\alias{powerTtest}
 \alias{predict_CI_PI}
 \alias{predict_link_response}
 \alias{predictRegressionModel}

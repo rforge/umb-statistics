@@ -175,8 +175,6 @@ numSummaryUMB <- function(data,
 		if (is.vector(x)) return(e1071::kurtosis(x, type=type, na.rm=TRUE))
 		apply(x, 2, kurtosis, type=type)
 	}
-	if(!require(abind)) stop("abind package missing")
-	if(!require(e1071)) stop("e1071 package missing")
 	data <- as.data.frame(data)
 	if (!missing(groups)) groups <- as.factor(groups)
 	variables <- names(data)

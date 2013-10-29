@@ -614,8 +614,9 @@ discriminantAnalysis <- function(){
     else {
       command <- paste(command, ")", sep="")
     }
-    assign(modelValue, justDoIt(command), envir=.GlobalEnv)
-    logger(paste(modelValue," <- ", command, sep=""))
+#    assign(modelValue, justDoIt(command), envir=.GlobalEnv)
+#    logger(paste(modelValue," <- ", command, sep=""))
+	doItAndPrint(paste(modelValue," <- ", command, sep=""))
     if(the.cv == gettextRcmdr("0")){
       doItAndPrint(paste("confusion(", ActiveDataSet(), "$", y, "[", the.subset, "]", ", predict(", modelValue, ")$class)  # confusion matrix", sep=""))
     }
@@ -793,8 +794,6 @@ hierarchicalClusterVariable <- function(){
 ############################
 ## Customized two-way table
 enterTableUMB <- function(){
-  Library("abind")
-  Library("vcd")  
   env <- environment()
   initializeDialog(title=gettextRcmdr("Enter Two-Way Table"))
   outerTableFrame <- tkframe(top)
@@ -940,7 +939,6 @@ enterTableUMB <- function(){
 #############################
 ## Customized two-way table
 twoWayTableUMB <- function(){
-  Library("abind")
   initializeDialog(title=gettextRcmdr("Two-Way Table"))
   variablesFrame <- tkframe(top)
   .factors <- Factors()
@@ -1437,7 +1435,6 @@ resetGLMUMB <- function(){
 ################################
 # Customized multiLogit
 multinomialLogitModelUMB <- function(){
-  Library("nnet")
   initializeDialog(title=gettextRcmdr("Multinomial Logit Model"))
   .activeModel <- ActiveModel()
   .activeDataSet <- ActiveDataSet()
@@ -1549,7 +1546,6 @@ multinomialLogitModelUMB <- function(){
 ################################
 # Customized ordinalRegression
 ordinalRegressionModelUMB <- function(){
-  Library("MASS")
   initializeDialog(title=gettextRcmdr("Ordinal Regression Model"))
   .activeModel <- ActiveModel()
   .activeDataSet <- ActiveDataSet()
@@ -1643,8 +1639,6 @@ ordinalRegressionModelUMB <- function(){
 ################################
 # Customized numerical summaries
 numericalSummariesUMB <- function(){
-  Library("abind")
-  Library("e1071")
   defaults <- list(initial.x=NULL, initial.mean="1", initial.median="0", initial.sum="0", initial.sumSq="0", initial.sd="1", initial.sdErr="0", initial.var="0", initial.cv="0",
                    initial.quantiles.variable="1", 
                    initial.quantiles="0, .25, .5, .75, 1", 
@@ -1739,8 +1733,6 @@ numericalSummariesUMB <- function(){
 #####################################
 # Bugfixed one-way ANOVA
 oneWayAnovaUMB <- function(){
-  Library("multcomp")
-  Library("abind")
   initializeDialog(title=gettextRcmdr("One-Way Analysis of Variance"))
   UpdateModelNumber()
   modelName <- tclVar(paste("AnovaModel.", getRcmdr("modelNumber"), sep=""))
@@ -2767,4 +2759,93 @@ tally.GUI <- function(){
   tkgrid(variablesFrame, sticky="nw", row=1, column=1, columnspan=1)
   tkgrid(buttonsFrame, sticky="w", row=2, column=1, columnspan=1)
   dialogSuffix(rows=2, columns=1)
+}
+
+####################################
+# Power computation for t statistics
+powerTtest <- function(){
+  initializeDialog(title=gettextRcmdr("Power calculations for one and two sample t tests"))
+  onOK <- function(){ # Actions to perform
+	nVal <- tclvalue(nLevel)
+	deltaVal <- tclvalue(deltaLevel)
+	sdVal <- tclvalue(sdLevel)
+	sigVal <- tclvalue(sigLevel)
+	powVal <- tclvalue(powLevel)
+	nBlank <- 0
+	if(trim.blanks(nVal) != gettextRcmdr("")){
+		nBlank <- nBlank + 1
+	} else {nVal <- "NULL"}
+	if(trim.blanks(deltaVal) != gettextRcmdr("")){
+		nBlank <- nBlank + 1
+	} else {deltaVal <- "NULL"}
+	if(trim.blanks(sdVal) != gettextRcmdr("")){
+		nBlank <- nBlank + 1
+	} else {sdVal <- "NULL"}
+	if(trim.blanks(sigVal) != gettextRcmdr("")){
+		nBlank <- nBlank + 1
+	} else {sigVal <- "NULL"}
+	if(trim.blanks(powVal) != gettextRcmdr("")){
+		nBlank <- nBlank + 1
+		pow <- as.numeric(powVal)
+		if(pow<=0 || pow>=1){
+		  errorCondition(recall=powerTtest, message=gettextRcmdr("Power must be between 0 and 1 if supplied."))
+		  return()
+		}
+	} else {powVal <- "NULL"}
+    if(nBlank != 4){
+      errorCondition(recall=powerTtest, message=gettextRcmdr("Exactly one field must be left empty."))
+      return()
+    }
+    type <- as.character(tclvalue(typeVariable))
+    alternative <- as.character(tclvalue(alternativeVariable))
+    closeDialog()
+	command <- paste("power.t.test(n = ", nVal, ", delta = ", deltaVal, ", sd = ", sdVal, ", sig.level = ", sigVal, ", power = ", powVal, ", type = '", type, "', alternative = '", alternative, "')", sep="")
+    doItAndPrint(command)
+    #assign(".Table", justDoIt(command), envir=.GlobalEnv)
+    tkfocus(CommanderWindow())
+  }
+  # Set up GUI
+    nFrame <- tkframe(top)
+	nLevel <- tclVar("")
+	nField <- ttkentry(nFrame, width="6", textvariable=nLevel)
+	deltaFrame <- tkframe(top)
+	deltaLevel <- tclVar("")
+	deltaField <- ttkentry(deltaFrame, width="6", textvariable=deltaLevel)
+	sdFrame <- tkframe(top)
+	sdLevel <- tclVar("")
+	sdField <- ttkentry(sdFrame, width="6", textvariable=sdLevel)
+	sigFrame <- tkframe(top)
+	sigLevel <- tclVar("0.05")
+	sigField <- ttkentry(sigFrame, width="6", textvariable=sigLevel)
+	powFrame <- tkframe(top)
+	powLevel <- tclVar("")
+	powField <- ttkentry(powFrame, width="6", textvariable=powLevel)
+	
+	tkgrid(labelRcmdr(nFrame, text=gettextRcmdr("# of samples:"), fg="blue"), sticky="nw")
+	tkgrid(nField, sticky="nw")
+	tkgrid(labelRcmdr(deltaFrame, text=gettextRcmdr("True difference:"), fg="blue"), sticky="nw")
+	tkgrid(deltaField, sticky="nw")
+	tkgrid(labelRcmdr(sdFrame, text=gettextRcmdr("Standard deviation:"), fg="blue"), sticky="nw")
+	tkgrid(sdField, sticky="nw")
+	tkgrid(labelRcmdr(sigFrame, text=gettextRcmdr("Significance level:"), fg="blue"), sticky="nw")
+	tkgrid(sigField, sticky="nw")
+	tkgrid(labelRcmdr(powFrame, text=gettextRcmdr("Power:"), fg="blue"), sticky="nw")
+	tkgrid(powField, sticky="nw")
+	
+	tkgrid(nFrame, sticky="nw", row=1, column=1, columnspan=1)
+	tkgrid(deltaFrame, sticky="nw", row=1, column=2, columnspan=1)
+	tkgrid(sdFrame, sticky="nw", row=1, column=3, columnspan=1)
+	tkgrid(sigFrame, sticky="nw", row=2, column=1, columnspan=1)
+	tkgrid(powFrame, sticky="nw", row=2, column=2, columnspan=1)
+
+	radioButtons(top, name="type", buttons=c("twosample", "onesample", "Paired"), values=c("two.sample", "one.sample", "paired"),
+               labels=gettextRcmdr(c("Two sample", "One sample", "Paired")), title=gettextRcmdr("Type of t test"))
+	radioButtons(top, name="alternative", buttons=c("twosided", "onesided"), values=c("two.sided", "one.sided"),
+               labels=gettextRcmdr(c("Two-sided", "One-sided")), title=gettextRcmdr("Alternative"))
+    tkgrid(typeFrame, sticky="nw", row=3, column=1, columnspan=1)
+    tkgrid(alternativeFrame, sticky="nw", row=3, column=2, columnspan=2)
+
+  OKCancelHelp(helpSubject="power.t.test")
+  tkgrid(buttonsFrame, sticky="w", row=4, column=1, columnspan=3)
+  dialogSuffix(rows=4, columns=2)
 }

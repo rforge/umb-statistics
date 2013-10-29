@@ -34,4 +34,4 @@ if (getRversion() >= "2.15.1")
 		"base", "high", "newDataSet", ".activeDataSet", ".activeModel", ".activeDataSet","outmat","rss",
 		"rsq","adjr2","pushViewport","viewport","upViewport","pressresVariable","presspredVariable",
 		 "selectFrame1", "selectFrame2", "selectFrame3", "selectFrame4", "selectFrame5", "selectFrame6",
-		 ".groups"))
+		 ".groups",".levels","multinom","typeFrame"))

@@ -380,7 +380,6 @@ dots <- function (x, y = 0.1, xlim = range(x, na.rm = TRUE), stacked = FALSE,
 # Contour plot of mixture designs (three factors/components)
 mixture.contour <- function(data, formula1, n.tick=6, n.grade=15, resolution=3, FUN=NULL, FUN2=NULL, PLS=FALSE, ncomp=NULL,
 	mix.format="dec", show.points=FALSE, show.contour=TRUE, zoomed=FALSE, pch=21, cex=1.25, col.points="black", fill.points="white"){
-	require(lattice)
 	if(show.contour){
 		data <- data[,c(attr(terms(formula1),"term.labels")[1:3],setdiff(all.vars(formula1),attr(terms(formula1),"term.labels")[1:3]))]
 	} else {
@@ -528,7 +527,6 @@ CIplot <- function (lm.object, xlim = range(data[, x.name]), newdata, conf.level
     data = model.frame(lm.object), newfit, ylim, pch = 16, main.cex = 1, 
     main = list(paste(100 * conf.level, "% confidence and prediction intervals, R^2=", format(summary(lm.object)[]$r.squared, digits=2), sep = ""), cex = main.cex), ...) 
 {
-	require(lattice)
 	lm.coef <- coef(lm.object)
 	if(length(lm.coef)>1){
 		fit.text <- paste(format(lm.coef[1],digits=2), " + ", format(lm.coef[2],digits=2), "*", names(lm.coef)[2], sep="")}
@@ -673,6 +671,7 @@ plotByGroups <- function(x.name, y.name, z.name, lineType, axisLabel, legend, co
 	.tmp.by.groups <- eval(parse(text=ActiveDataSet()))
 	xLabel <- x.name
 	attach(.tmp.by.groups)
+	on.exit(detach(.tmp.by.groups))
 	n <- dim(.tmp.by.groups)[1]
 	levs <- as.character(eval(parse(text=paste("unique(", z.name, ")", sep=""))))
 	if(missing(col))
@@ -717,13 +716,11 @@ plotByGroups <- function(x.name, y.name, z.name, lineType, axisLabel, legend, co
         par(xpd=.xpd)
 		par(mar=mar)
 	}
-	detach(.tmp.by.groups)
 }
 
 #####################################
 # Pie chart (by summaries)
 pieChartUMB <- function(){
-	Library("abind")
 	initializeDialog(title=gettextRcmdr("Pie chart from summaries"))
 	labelsBox <- variableListBox(top, Factors(), title=gettextRcmdr("Labels (pick one)"))
 	sizeBox <- variableListBox(top, Numeric(), title=gettextRcmdr("Sizes (pick one)"))
@@ -836,7 +833,7 @@ discreteDistributionPlotUMB <- function(nameVar){
 		nameVarF <- eval(parse(text=paste("Rcmdr:::",nameVar,"DistributionPlot",sep="")))
 		closeDialog()
 		warn <- options(warn=-1)
-		vars<-real(nnVar)
+		vars <- double(nnVar)
 		for (i in 1:nnVar) {
 			vars[i]<-as.numeric(tclvalue(get(paramsVar[i])))
 		}
