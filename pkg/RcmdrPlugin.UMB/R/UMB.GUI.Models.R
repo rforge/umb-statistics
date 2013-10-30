@@ -600,7 +600,7 @@ postHocGUI <- function(){
 	  if(glmP()){
 		command <- paste("summary(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey')))", sep="")
 	  } else {
-        command <- paste("TukeyHSD(aov(", ActiveModel(), "),",selected,", conf.level=",the.tukey,")",sep="")
+        command <- paste("TukeyHSD(", ActiveModel(), ",",selected,", conf.level=",the.tukey,")",sep="")
 	  }
       doItAndPrint(command)
     } 
@@ -608,7 +608,7 @@ postHocGUI <- function(){
 	  if(glmP()){
 		command <- paste("multcomp:::print.cld(multcomp::cld(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey'))))", sep="")
 	  } else {
-		command <- paste("cld('TukeyHSD', ", ActiveModel(), ", ", 1-as.numeric(the.tukey), ", ", selected,")", sep="")
+		command <- paste("cld(TukeyHSD(, ", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.tukey),")", sep="")
 	  }
       doItAndPrint(command)
     }
@@ -616,20 +616,20 @@ postHocGUI <- function(){
 	if(!glmP()){
 		the.bonferroni <- tclvalue(bonferroniName)
 		if(tclvalue(bonferroniTestsVariable)== gettextRcmdr("1")){
-		  command <- paste("Bonferroni(aov(", ActiveModel(), "),",selected,", conf.level=",the.bonferroni,")",sep="")
+		  command <- paste("Bonferroni(", ActiveModel(), ",",selected,"), conf.level=",the.bonferroni,")",sep="")
 		  doItAndPrint(command)
 		}
 		if(tclvalue(bonferroniGroupsVariable)== gettextRcmdr("1")){
-		  doItAndPrint(paste("cld('Bonferroni', ", ActiveModel(), ", ", 1-as.numeric(the.bonferroni), ", ", selected,")", sep=""))
+		  doItAndPrint(paste("cld(Bonferroni(, ", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.bonferroni), ")", sep=""))
 		}
 
 		the.fisher <- tclvalue(fisherName)
 		if(tclvalue(fisherTestsVariable)== gettextRcmdr("1")){
-		  command <- paste("Fisher(aov(", ActiveModel(), "),",selected,", conf.level=",the.fisher,")",sep="")
+		  command <- paste("Fisher(", ActiveModel(), ",",selected,", conf.level=",the.fisher,")",sep="")
 		  doItAndPrint(command)
 		}
 		if(tclvalue(fisherGroupsVariable)== gettextRcmdr("1")){
-		  doItAndPrint(paste("cld('Fisher', ", ActiveModel(), ", ", 1-as.numeric(the.fisher), ", ", selected,")", sep=""))
+		  doItAndPrint(paste("cld(Fisher(, ", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.fisher), ")", sep=""))
 		}
 		
 		if(length(selectedDunnett)>0){

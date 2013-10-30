@@ -101,6 +101,7 @@ AnovaMix <- function(object){
 	exp.mean.sq <- rep(paste("(",n.effects+1,")", sep=""), n.effects+1)
 	var.comps <- numeric(n.effects+1)*NA
 	var.comps[n.effects+1] <- fixed.model[n.effects+1,3]
+	errors <- numeric(n.effects)
 	for(i in 1:n.effects) {
 		if(!is.logical(approved.interactions[[i]])){
 			# Set up matrix A and vector b to find linear combinations of effects to use as denominators in F statistics
@@ -142,6 +143,7 @@ AnovaMix <- function(object){
 				ex.ind <- ""}
 			exp.mean.sq[i] <- paste(exp.mean.sq[i], " + ", N/prod(n.levels[strsplit(all.effects[i],":")[[1]]]), " Q[",i,ex.ind,"]", sep="")
 		}
+		errors[i] <- fixed.model[denominator.id,3]
 		fixed.model[i,4] <- fixed.model[i,3]/(fixed.model[denominator.id,3]%*%denominator)
 		if(fixed.model[i,4]<0){
 			fixed.model[i,4] <- NA}
@@ -149,7 +151,7 @@ AnovaMix <- function(object){
 	}
 	names(denom.df) <- rownames(fixed.model)
 	object <- list(lm=object, anova=fixed.model, err.terms=c(mix.model.attr,NA), denom.df=denom.df, restricted=restrictedModel,
-		exp.mean.sq=exp.mean.sq, var.comps=var.comps, random.effects=random.effects, ind.randoms=ind.randoms, formula.text=formula.text)
+		exp.mean.sq=exp.mean.sq, var.comps=var.comps, random.effects=random.effects, ind.randoms=ind.randoms, formula.text=formula.text, errors=errors)
 	class(object) <- "AnovaMix"
 	object
 }

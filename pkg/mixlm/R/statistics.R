@@ -1102,10 +1102,13 @@ Bonferroni <-
 
 #################################################
 ## Bonferroni
-Bonferroni.aov <-
+Bonferroni.lm <-
     function(x, which = seq_along(tabs), ordered = TRUE,
              conf.level = 0.95, ...)
 {
+	xc <- x$call
+	x <- aov(x)
+	x$call <- xc
     mm <- model.tables(x, "means")
     if(is.null(mm$n))
         stop("no factors in the fitted model")
@@ -1214,10 +1217,13 @@ Fisher <-
 
 #################################################
 #### Fisher
-Fisher.aov <-
+Fisher.lm <-
     function(x, which = seq_along(tabs), ordered = TRUE,
              conf.level = 0.95, ...)
 {
+	xc <- x$call
+	x <- aov(x)
+	x$call <- xc
     mm <- model.tables(x, "means")
     if(is.null(mm$n))
         stop("no factors in the fitted model")
@@ -1332,10 +1338,13 @@ TukeyHSD <-
 
 #################################################
 #### TukeyHSD
-TukeyHSD.aov <-
+TukeyHSD.lm <-
     function(x, which = seq_along(tabs), ordered = TRUE,
              conf.level = 0.95, ...)
 {
+	xc <- x$call
+	x <- aov(x)
+	x$call <- xc
     mm <- model.tables(x, "means")
     if(is.null(mm$n))
         stop("no factors in the fitted model")
