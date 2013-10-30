@@ -37,7 +37,7 @@ Kristian Hovde Liland
   \code{\link[multcomp]{cld}} in package \CRANpkg{multcomp}.
 }
 \examples{
-summary(fm1 <- aov(breaks ~ wool + tension, data = warpbreaks))
+summary(fm1 <- lm(breaks ~ wool + tension, data = warpbreaks))
 TukeyHSD(fm1, "tension", ordered = TRUE)
 cld(TukeyHSD(fm1, "tension", ordered = TRUE))
 }

@@ -2,15 +2,15 @@
 
 \name{TukeyHSD}
 \alias{TukeyHSD}
-\alias{TukeyHSD.aov}
+\alias{TukeyHSD.lm}
 \alias{print.TukeyHSD}
 \alias{plot.TukeyHSD}
 \alias{Fisher}
-\alias{Fisher.aov}
+\alias{Fisher.lm}
 \alias{print.Fisher}
 \alias{plot.Fisher}
 \alias{Bonferroni}
-\alias{Bonferroni.aov}
+\alias{Bonferroni.lm}
 \alias{print.Bonferroni}
 \alias{plot.Bonferroni}
 \title{
@@ -103,7 +103,7 @@ Fisher(x, which, ordered = TRUE, conf.level = 0.95, \dots)
 \examples{
 require(graphics)
 
-summary(fm1 <- aov(breaks ~ wool + tension, data = warpbreaks))
+summary(fm1 <- lm(breaks ~ wool + tension, data = warpbreaks))
 TukeyHSD(fm1, "tension", ordered = TRUE)
 plot(TukeyHSD(fm1, "tension"))
 }
