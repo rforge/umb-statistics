@@ -1375,8 +1375,8 @@ generalizedLinearModelUMB <- function(){
     doItAndPrint(paste("summary(", modelValue, ")", sep=""))
     activeModel(modelValue)
 	model.class <- eval(parse(text=paste("class(",modelValue,")",sep="")))
-	if(model.class[1]=="mer"){
-		doItAndPrint(paste("Anova(", modelValue, ",test='chisq',type=3)", sep=""))
+	if(model.class[1]=="glmerMod"){
+		doItAndPrint(paste("Anova(", modelValue, ",test='Chisq',type=3)", sep=""))
 	} else {
 		doItAndPrint(paste("Anova(", modelValue, ",test='LR',type=3)", sep=""))
 	}

@@ -608,7 +608,7 @@ postHocGUI <- function(){
 	  if(glmP()){
 		command <- paste("multcomp:::print.cld(multcomp::cld(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey'))))", sep="")
 	  } else {
-		command <- paste("cld(TukeyHSD(, ", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.tukey),")", sep="")
+		command <- paste("cld(TukeyHSD(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.tukey),")", sep="")
 	  }
       doItAndPrint(command)
     }
@@ -616,11 +616,11 @@ postHocGUI <- function(){
 	if(!glmP()){
 		the.bonferroni <- tclvalue(bonferroniName)
 		if(tclvalue(bonferroniTestsVariable)== gettextRcmdr("1")){
-		  command <- paste("Bonferroni(", ActiveModel(), ",",selected,"), conf.level=",the.bonferroni,")",sep="")
+		  command <- paste("Bonferroni(", ActiveModel(), ",",selected,", conf.level=",the.bonferroni,")",sep="")
 		  doItAndPrint(command)
 		}
 		if(tclvalue(bonferroniGroupsVariable)== gettextRcmdr("1")){
-		  doItAndPrint(paste("cld(Bonferroni(, ", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.bonferroni), ")", sep=""))
+		  doItAndPrint(paste("cld(Bonferroni(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.bonferroni), ")", sep=""))
 		}
 
 		the.fisher <- tclvalue(fisherName)
@@ -629,7 +629,7 @@ postHocGUI <- function(){
 		  doItAndPrint(command)
 		}
 		if(tclvalue(fisherGroupsVariable)== gettextRcmdr("1")){
-		  doItAndPrint(paste("cld(Fisher(, ", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.fisher), ")", sep=""))
+		  doItAndPrint(paste("cld(Fisher(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.fisher), ")", sep=""))
 		}
 		
 		if(length(selectedDunnett)>0){
@@ -780,8 +780,8 @@ anova_reg_GUI <- function(){
 # PRESS
 PRESS.GUI <- function(){
   doItAndPrint(paste("PRESS(", ActiveModel(), ")", sep=""))
-  doItAndPrint(paste("R2_pred(", ActiveModel(), ")", sep=""))
-  doItAndPrint(paste("rmsep(", ActiveModel(), ")", sep=""))
+  doItAndPrint(paste("R2pred(", ActiveModel(), ")", sep=""))
+  doItAndPrint(paste("RMSEP(", ActiveModel(), ")", sep=""))
 }
 
 ######################################
