@@ -1094,409 +1094,565 @@ tally <- function(x){
 }
 
 
-#################################################
-## Bonferroni
-Bonferroni <-
-    function(x, which, ordered = TRUE, conf.level = 0.95, ...)
-    UseMethod("Bonferroni")
+# #################################################
+# ## Bonferroni
+# Bonferroni <-
+    # function(x, which, ordered = TRUE, conf.level = 0.95, ...)
+    # UseMethod("Bonferroni")
 
-#################################################
-## Bonferroni
-Bonferroni.lm <-
-    function(x, which = seq_along(tabs), ordered = TRUE,
-             conf.level = 0.95, ...)
-{
-	xc <- x$call
-	x <- aov(x)
-	x$call <- xc
-    mm <- model.tables(x, "means")
-    if(is.null(mm$n))
-        stop("no factors in the fitted model")
-    tabs <- mm$tables[-1L]
-    tabs <- tabs[which]
-    ## mm$n need not be complete -- factors only -- so index by names
-    nn <- mm$n[names(tabs)]
-    nn_na <- is.na(nn)
-    if(all(nn_na))
-        stop("'which' specified no factors")
-    if(any(nn_na)) {
-        warning("'which' specified some non-factors which will be dropped")
-        tabs <- tabs[!nn_na]
-        nn <- nn[!nn_na]
-    }
-    out <- vector("list", length(tabs))
-    names(out) <- names(tabs)
-    MSE <- sum(resid(x)^2, na.rm=TRUE)/x$df.residual
-    for (nm in names(tabs)) {
-        tab <- tabs[[nm]]
-        means <- as.vector(tab)
-        nms <- if(length(d <- dim(tab)) > 1L) {
-            dn <- dimnames(tab)
-            apply(do.call("expand.grid", dn), 1L, paste, collapse=":")
-        } else names(tab)
-        n <- nn[[nm]]
-        ## expand n to the correct length if necessary
-        if (length(n) < length(means)) n <- rep.int(n, length(means))
-        if (as.logical(ordered)) {
-            ord <- order(means)
-            means <- means[ord]
-            n <- n[ord]
-            if (!is.null(nms)) nms <- nms[ord]
-        }
-        center <- outer(means, means, "-")
-        keep <- lower.tri(center)
-        center <- center[keep]
-        width <- qt(1-(1-conf.level)/(2*sum(keep)), x$df.residual) *
-            sqrt((MSE) * outer(1/n, 1/n, "+"))[keep]
-        est <- center/(sqrt((MSE) * outer(1/n, 1/n, "+"))[keep])
-        pvals <- p.adjust(pt(abs(est),x$df.residual,lower.tail=FALSE)*2,"bonferroni")
-        dnames <- list(NULL, c("diff", "lwr", "upr","p adj"))
-        if (!is.null(nms)) dnames[[1L]] <- outer(nms, nms, paste, sep = "-")[keep]
-        out[[nm]] <- array(c(center, center - width, center + width,pvals),
-                           c(length(width), 4), dnames)
-    }
-    class(out) <- c("multicomp", "Bonferroni")
-    attr(out, "orig.call") <- x$call
-    attr(out, "conf.level") <- conf.level
-    attr(out, "ordered") <- ordered
-	attr(out, "data") <- x$model
-	if(!is.balanced()){
-		cat("\nWARNING: Unbalanced data may lead to poor estimates\n")
-	}
-    out
-}
+# #################################################
+# ## Bonferroni
+# Bonferroni.lm <-
+    # function(x, which = seq_along(tabs), ordered = TRUE,
+             # conf.level = 0.95, ...)
+# {
+	# xc <- x$call
+	# x <- aov(x)
+	# x$call <- xc
+    # mm <- model.tables(x, "means")
+    # if(is.null(mm$n))
+        # stop("no factors in the fitted model")
+    # tabs <- mm$tables[-1L]
+    # tabs <- tabs[which]
+    # ## mm$n need not be complete -- factors only -- so index by names
+    # nn <- mm$n[names(tabs)]
+    # nn_na <- is.na(nn)
+    # if(all(nn_na))
+        # stop("'which' specified no factors")
+    # if(any(nn_na)) {
+        # warning("'which' specified some non-factors which will be dropped")
+        # tabs <- tabs[!nn_na]
+        # nn <- nn[!nn_na]
+    # }
+    # out <- vector("list", length(tabs))
+    # names(out) <- names(tabs)
+    # MSE <- sum(resid(x)^2, na.rm=TRUE)/x$df.residual
+    # for (nm in names(tabs)) {
+        # tab <- tabs[[nm]]
+        # means <- as.vector(tab)
+        # nms <- if(length(d <- dim(tab)) > 1L) {
+            # dn <- dimnames(tab)
+            # apply(do.call("expand.grid", dn), 1L, paste, collapse=":")
+        # } else names(tab)
+        # n <- nn[[nm]]
+        # ## expand n to the correct length if necessary
+        # if (length(n) < length(means)) n <- rep.int(n, length(means))
+        # if (as.logical(ordered)) {
+            # ord <- order(means)
+            # means <- means[ord]
+            # n <- n[ord]
+            # if (!is.null(nms)) nms <- nms[ord]
+        # }
+        # center <- outer(means, means, "-")
+        # keep <- lower.tri(center)
+        # center <- center[keep]
+        # width <- qt(1-(1-conf.level)/(2*sum(keep)), x$df.residual) *
+            # sqrt((MSE) * outer(1/n, 1/n, "+"))[keep]
+        # est <- center/(sqrt((MSE) * outer(1/n, 1/n, "+"))[keep])
+        # pvals <- p.adjust(pt(abs(est),x$df.residual,lower.tail=FALSE)*2,"bonferroni")
+        # dnames <- list(NULL, c("diff", "lwr", "upr","p adj"))
+        # if (!is.null(nms)) dnames[[1L]] <- outer(nms, nms, paste, sep = "-")[keep]
+        # out[[nm]] <- array(c(center, center - width, center + width,pvals),
+                           # c(length(width), 4), dnames)
+    # }
+    # class(out) <- c("multicomp", "Bonferroni")
+    # attr(out, "orig.call") <- x$call
+    # attr(out, "conf.level") <- conf.level
+    # attr(out, "ordered") <- ordered
+	# attr(out, "data") <- x$model
+	# if(!is.balanced()){
+		# cat("\nWARNING: Unbalanced data may lead to poor estimates\n")
+	# }
+    # out
+# }
 
-#################################################
-#### Bonferroni
-print.Bonferroni <- function(x, digits=getOption("digits"), ...)
-{
-    cat("  Bonferroni multiple comparisons of means\n")
-    cat("    ", format(100*attr(x, "conf.level"), 2),
-        "% family-wise confidence level\n", sep="")
-    if (attr(x, "ordered"))
-        cat("    factor levels have been ordered\n")
-    cat("\nFit: ", deparse(attr(x, "orig.call"), 500), "\n\n", sep="")
-    xx <- unclass(x)
-    attr(xx, "data") <- attr(xx, "orig.call") <- attr(xx, "conf.level") <- attr(xx, "ordered") <- NULL
-    xx[] <- lapply(xx, function(z, digits)
-               {z[, "p adj"] <- round(z[, "p adj"], digits); z},
-                   digits=digits)
-    print.default(xx, digits, ...)
-    invisible(x)
-}
+# #################################################
+# #### Bonferroni
+# print.Bonferroni <- function(x, digits=getOption("digits"), ...)
+# {
+    # cat("  Bonferroni multiple comparisons of means\n")
+    # cat("    ", format(100*attr(x, "conf.level"), 2),
+        # "% family-wise confidence level\n", sep="")
+    # if (attr(x, "ordered"))
+        # cat("    factor levels have been ordered\n")
+    # cat("\nFit: ", deparse(attr(x, "orig.call"), 500), "\n\n", sep="")
+    # xx <- unclass(x)
+    # attr(xx, "data") <- attr(xx, "orig.call") <- attr(xx, "conf.level") <- attr(xx, "ordered") <- NULL
+    # xx[] <- lapply(xx, function(z, digits)
+               # {z[, "p adj"] <- round(z[, "p adj"], digits); z},
+                   # digits=digits)
+    # print.default(xx, digits, ...)
+    # invisible(x)
+# }
 
-#################################################
-#### Bonferroni
-plot.Bonferroni <- function (x, ...)
-{
-    for (i in seq_along(x)) {
-        xi <- x[[i]][, -4, drop=FALSE] # drop p-values
-        yvals <- nrow(xi):1
-        plot(c(xi[, "lwr"], xi[, "upr"]), rep.int(yvals, 2), type = "n",
-             axes = FALSE, xlab = "", ylab = "", ...)
-        axis(1, ...)
-        axis(2, at = nrow(xi):1, labels = dimnames(xi)[[1L]],
-             srt = 0, ...)
-        abline(h = yvals, lty = 1, lwd = 0.5, col = "lightgray")
-        abline(v = 0, lty = 2, lwd = 0.5, ...)
-        segments(xi[, "lwr"], yvals, xi[, "upr"], yvals, ...)
-        segments(as.vector(xi), rep.int(yvals - 0.1, 3), as.vector(xi),
-                 rep.int(yvals + 0.1, 3), ...)
-        title(main = paste(format(100 * attr(x, "conf.level"),
-              2), "% family-wise confidence level\n", sep = ""),
-              xlab = paste("Differences in mean levels of", names(x)[i]))
-        box()
-    }
-}
+# #################################################
+# #### Bonferroni
+# plot.Bonferroni <- function (x, ...)
+# {
+    # for (i in seq_along(x)) {
+        # xi <- x[[i]][, -4, drop=FALSE] # drop p-values
+        # yvals <- nrow(xi):1
+        # plot(c(xi[, "lwr"], xi[, "upr"]), rep.int(yvals, 2), type = "n",
+             # axes = FALSE, xlab = "", ylab = "", ...)
+        # axis(1, ...)
+        # axis(2, at = nrow(xi):1, labels = dimnames(xi)[[1L]],
+             # srt = 0, ...)
+        # abline(h = yvals, lty = 1, lwd = 0.5, col = "lightgray")
+        # abline(v = 0, lty = 2, lwd = 0.5, ...)
+        # segments(xi[, "lwr"], yvals, xi[, "upr"], yvals, ...)
+        # segments(as.vector(xi), rep.int(yvals - 0.1, 3), as.vector(xi),
+                 # rep.int(yvals + 0.1, 3), ...)
+        # title(main = paste(format(100 * attr(x, "conf.level"),
+              # 2), "% family-wise confidence level\n", sep = ""),
+              # xlab = paste("Differences in mean levels of", names(x)[i]))
+        # box()
+    # }
+# }
 
-#################################################
-#### Fisher
-Fisher <-
-    function(x, which, ordered = TRUE, conf.level = 0.95, ...)
-    UseMethod("Fisher")
+# #################################################
+# #### Fisher
+# Fisher <-
+    # function(x, which, ordered = TRUE, conf.level = 0.95, ...)
+    # UseMethod("Fisher")
 
-#################################################
-#### Fisher
-Fisher.lm <-
-    function(x, which = seq_along(tabs), ordered = TRUE,
-             conf.level = 0.95, ...)
-{
-	xc <- x$call
-	x <- aov(x)
-	x$call <- xc
-    mm <- model.tables(x, "means")
-    if(is.null(mm$n))
-        stop("no factors in the fitted model")
-    tabs <- mm$tables[-1L]
-    tabs <- tabs[which]
-    ## mm$n need not be complete -- factors only -- so index by names
-    nn <- mm$n[names(tabs)]
-    nn_na <- is.na(nn)
-    if(all(nn_na))
-        stop("'which' specified no factors")
-    if(any(nn_na)) {
-        warning("'which' specified some non-factors which will be dropped")
-        tabs <- tabs[!nn_na]
-        nn <- nn[!nn_na]
-    }
-    out <- vector("list", length(tabs))
-    names(out) <- names(tabs)
-    MSE <- sum(resid(x)^2, na.rm=TRUE)/x$df.residual
-	n.means <- 0
-    for (nm in names(tabs)) {
-        tab <- tabs[[nm]]
-        means <- as.vector(tab)
-        nms <- if(length(d <- dim(tab)) > 1L) {
-            dn <- dimnames(tab)
-            apply(do.call("expand.grid", dn), 1L, paste, collapse=":")
-        } else names(tab)
-        n <- nn[[nm]]
-        ## expand n to the correct length if necessary
-        if (length(n) < length(means)) n <- rep.int(n, length(means))
-        if (as.logical(ordered)) {
-            ord <- order(means)
-            means <- means[ord]
-            n <- n[ord]
-            if (!is.null(nms)) nms <- nms[ord]
-        }
-		n.means <- n.means+length(means)
-        center <- outer(means, means, "-")
-        keep <- lower.tri(center)
-        center <- center[keep]
-        width <- qt(1-(1-conf.level)/2, x$df.residual) *
-            sqrt((MSE) * outer(1/n, 1/n, "+"))[keep]
-        est <- center/(sqrt((MSE) * outer(1/n, 1/n, "+"))[keep])
-        pvals <- pt(abs(est),x$df.residual,lower.tail=FALSE)*2
-        dnames <- list(NULL, c("diff", "lwr", "upr","p adj"))
-        if (!is.null(nms)) dnames[[1L]] <- outer(nms, nms, paste, sep = "-")[keep]
-        out[[nm]] <- array(c(center, center - width, center + width,pvals),
-                           c(length(width), 4), dnames)
-    }
-    class(out) <- c("multicomp", "Fisher")
-    attr(out, "orig.call") <- x$call
-    attr(out, "conf.level") <- conf.level
-    attr(out, "fam.level") <- ptukey(sqrt(2)*qt(1-(1-conf.level)/2,x$df.residual),n.means,x$df.residual)
-    attr(out, "ordered") <- ordered
-	attr(out, "data") <- x$model
-	if(!is.balanced()){
-		cat("\nWARNING: Unbalanced data may lead to poor estimates\n")
-	}
-    out
-}
+# #################################################
+# #### Fisher
+# Fisher.lm <-
+    # function(x, which = seq_along(tabs), ordered = TRUE,
+             # conf.level = 0.95, ...)
+# {
+	# xc <- x$call
+	# x <- aov(x)
+	# x$call <- xc
+    # mm <- model.tables(x, "means")
+    # if(is.null(mm$n))
+        # stop("no factors in the fitted model")
+    # tabs <- mm$tables[-1L]
+    # tabs <- tabs[which]
+    # ## mm$n need not be complete -- factors only -- so index by names
+    # nn <- mm$n[names(tabs)]
+    # nn_na <- is.na(nn)
+    # if(all(nn_na))
+        # stop("'which' specified no factors")
+    # if(any(nn_na)) {
+        # warning("'which' specified some non-factors which will be dropped")
+        # tabs <- tabs[!nn_na]
+        # nn <- nn[!nn_na]
+    # }
+    # out <- vector("list", length(tabs))
+    # names(out) <- names(tabs)
+    # MSE <- sum(resid(x)^2, na.rm=TRUE)/x$df.residual
+	# n.means <- 0
+    # for (nm in names(tabs)) {
+        # tab <- tabs[[nm]]
+        # means <- as.vector(tab)
+        # nms <- if(length(d <- dim(tab)) > 1L) {
+            # dn <- dimnames(tab)
+            # apply(do.call("expand.grid", dn), 1L, paste, collapse=":")
+        # } else names(tab)
+        # n <- nn[[nm]]
+        # ## expand n to the correct length if necessary
+        # if (length(n) < length(means)) n <- rep.int(n, length(means))
+        # if (as.logical(ordered)) {
+            # ord <- order(means)
+            # means <- means[ord]
+            # n <- n[ord]
+            # if (!is.null(nms)) nms <- nms[ord]
+        # }
+		# n.means <- n.means+length(means)
+        # center <- outer(means, means, "-")
+        # keep <- lower.tri(center)
+        # center <- center[keep]
+        # width <- qt(1-(1-conf.level)/2, x$df.residual) *
+            # sqrt((MSE) * outer(1/n, 1/n, "+"))[keep]
+        # est <- center/(sqrt((MSE) * outer(1/n, 1/n, "+"))[keep])
+        # pvals <- pt(abs(est),x$df.residual,lower.tail=FALSE)*2
+        # dnames <- list(NULL, c("diff", "lwr", "upr","p adj"))
+        # if (!is.null(nms)) dnames[[1L]] <- outer(nms, nms, paste, sep = "-")[keep]
+        # out[[nm]] <- array(c(center, center - width, center + width,pvals),
+                           # c(length(width), 4), dnames)
+    # }
+    # class(out) <- c("multicomp", "Fisher")
+    # attr(out, "orig.call") <- x$call
+    # attr(out, "conf.level") <- conf.level
+    # attr(out, "fam.level") <- ptukey(sqrt(2)*qt(1-(1-conf.level)/2,x$df.residual),n.means,x$df.residual)
+    # attr(out, "ordered") <- ordered
+	# attr(out, "data") <- x$model
+	# if(!is.balanced()){
+		# cat("\nWARNING: Unbalanced data may lead to poor estimates\n")
+	# }
+    # out
+# }
 
-#################################################
-#### Fisher
-print.Fisher <- function(x, digits=getOption("digits"), ...)
-{
-    cat("  Fisher multiple comparisons of means\n")
-    cat("    ", format(100*attr(x, "conf.level"), digits=4),
-        "% individual confidence level\n", sep="")
-    cat("    ", format(100*attr(x, "fam.level"), digits=4),
-        "% family-wise confidence level\n", sep="")
-    if (attr(x, "ordered"))
-        cat("    factor levels have been ordered\n")
+# #################################################
+# #### Fisher
+# print.Fisher <- function(x, digits=getOption("digits"), ...)
+# {
+    # cat("  Fisher multiple comparisons of means\n")
+    # cat("    ", format(100*attr(x, "conf.level"), digits=4),
+        # "% individual confidence level\n", sep="")
+    # cat("    ", format(100*attr(x, "fam.level"), digits=4),
+        # "% family-wise confidence level\n", sep="")
+    # if (attr(x, "ordered"))
+        # cat("    factor levels have been ordered\n")
 		
-    cat("\nFit: ", deparse(attr(x, "orig.call"), 500), "\n\n", sep="")
-    xx <- unclass(x)
-    attr(xx, "data") <- attr(xx, "orig.call") <- attr(xx, "fam.level") <- attr(xx, "conf.level") <- attr(xx, "ordered") <- NULL
-    xx[] <- lapply(xx, function(z, digits)
-               {z[, "p adj"] <- round(z[, "p adj"], digits); z},
-                   digits=digits)
-    print.default(xx, digits, ...)
-    invisible(x)
-}
+    # cat("\nFit: ", deparse(attr(x, "orig.call"), 500), "\n\n", sep="")
+    # xx <- unclass(x)
+    # attr(xx, "data") <- attr(xx, "orig.call") <- attr(xx, "fam.level") <- attr(xx, "conf.level") <- attr(xx, "ordered") <- NULL
+    # xx[] <- lapply(xx, function(z, digits)
+               # {z[, "p adj"] <- round(z[, "p adj"], digits); z},
+                   # digits=digits)
+    # print.default(xx, digits, ...)
+    # invisible(x)
+# }
 
-#################################################
-#### Fisher
-plot.Fisher <- function (x, ...)
-{
-    for (i in seq_along(x)) {
-        xi <- x[[i]][, -4, drop=FALSE] # drop p-values
-        yvals <- nrow(xi):1
-        plot(c(xi[, "lwr"], xi[, "upr"]), rep.int(yvals, 2), type = "n",
-             axes = FALSE, xlab = "", ylab = "", ...)
-        axis(1, ...)
-        axis(2, at = nrow(xi):1, labels = dimnames(xi)[[1L]],
-             srt = 0, ...)
-        abline(h = yvals, lty = 1, lwd = 0.5, col = "lightgray")
-        abline(v = 0, lty = 2, lwd = 0.5, ...)
-        segments(xi[, "lwr"], yvals, xi[, "upr"], yvals, ...)
-        segments(as.vector(xi), rep.int(yvals - 0.1, 3), as.vector(xi),
-                 rep.int(yvals + 0.1, 3), ...)
-        title(main = paste(format(100 * attr(x, "fam.level"),
-              2), "% family-wise confidence level\n", sep = ""),
-              xlab = paste("Differences in mean levels of", names(x)[i]))
-        box()
-    }
-}
+# #################################################
+# #### Fisher
+# plot.Fisher <- function (x, ...)
+# {
+    # for (i in seq_along(x)) {
+        # xi <- x[[i]][, -4, drop=FALSE] # drop p-values
+        # yvals <- nrow(xi):1
+        # plot(c(xi[, "lwr"], xi[, "upr"]), rep.int(yvals, 2), type = "n",
+             # axes = FALSE, xlab = "", ylab = "", ...)
+        # axis(1, ...)
+        # axis(2, at = nrow(xi):1, labels = dimnames(xi)[[1L]],
+             # srt = 0, ...)
+        # abline(h = yvals, lty = 1, lwd = 0.5, col = "lightgray")
+        # abline(v = 0, lty = 2, lwd = 0.5, ...)
+        # segments(xi[, "lwr"], yvals, xi[, "upr"], yvals, ...)
+        # segments(as.vector(xi), rep.int(yvals - 0.1, 3), as.vector(xi),
+                 # rep.int(yvals + 0.1, 3), ...)
+        # title(main = paste(format(100 * attr(x, "fam.level"),
+              # 2), "% family-wise confidence level\n", sep = ""),
+              # xlab = paste("Differences in mean levels of", names(x)[i]))
+        # box()
+    # }
+# }
 
-#################################################
-#### TukeyHSD
-TukeyHSD <-
-    function(x, which, ordered = TRUE, conf.level = 0.95, ...)
-    UseMethod("TukeyHSD")
+# #################################################
+# #### TukeyHSD
+# TukeyHSD <-
+    # function(x, which, ordered = TRUE, conf.level = 0.95, ...)
+    # UseMethod("TukeyHSD")
 
-#################################################
-#### TukeyHSD
-TukeyHSD.lm <-
-    function(x, which = seq_along(tabs), ordered = TRUE,
-             conf.level = 0.95, ...)
-{
-	xc <- x$call
-	x <- aov(x)
-	x$call <- xc
-    mm <- model.tables(x, "means")
-    if(is.null(mm$n))
-        stop("no factors in the fitted model")
-    tabs <- mm$tables[-1L]
-    tabs <- tabs[which]
-    ## mm$n need not be complete -- factors only -- so index by names
-    nn <- mm$n[names(tabs)]
-    nn_na <- is.na(nn)
-    if(all(nn_na))
-        stop("'which' specified no factors")
-    if(any(nn_na)) {
-        warning("'which' specified some non-factors which will be dropped")
-        tabs <- tabs[!nn_na]
-        nn <- nn[!nn_na]
-    }
-    out <- vector("list", length(tabs))
-    names(out) <- names(tabs)
-    MSE <- sum(resid(x)^2, na.rm=TRUE)/x$df.residual
-    for (nm in names(tabs)) {
-        tab <- tabs[[nm]]
-        means <- as.vector(tab)
-        nms <- if(length(d <- dim(tab)) > 1L) {
-            dn <- dimnames(tab)
-            apply(do.call("expand.grid", dn), 1L, paste, collapse=":")
-        } else names(tab)
-        n <- nn[[nm]]
-        ## expand n to the correct length if necessary
-        if (length(n) < length(means)) n <- rep.int(n, length(means))
-        if (as.logical(ordered)) {
-            ord <- order(means)
-            means <- means[ord]
-            n <- n[ord]
-            if (!is.null(nms)) nms <- nms[ord]
-        }
-        center <- outer(means, means, "-")
-        keep <- lower.tri(center)
-        center <- center[keep]
-        width <- qtukey(conf.level, length(means), x$df.residual) *
-            sqrt((MSE/2) * outer(1/n, 1/n, "+"))[keep]
-        est <- center/(sqrt((MSE/2) * outer(1/n, 1/n, "+"))[keep])
-        pvals <- ptukey(abs(est),length(means),x$df.residual,lower.tail=FALSE)
-        dnames <- list(NULL, c("diff", "lwr", "upr","p adj"))
-        if (!is.null(nms)) dnames[[1L]] <- outer(nms, nms, paste, sep = "-")[keep]
-        out[[nm]] <- array(c(center, center - width, center + width,pvals),
-                           c(length(width), 4), dnames)
-    }
-    class(out) <- c("multicomp", "TukeyHSD")
-    attr(out, "orig.call") <- x$call
-    attr(out, "conf.level") <- conf.level
-    attr(out, "ordered") <- ordered
-	attr(out, "data") <- x$model
-    out
-}
+# #################################################
+# #### TukeyHSD
+# TukeyHSD.lm <-
+    # function(x, which = seq_along(tabs), ordered = TRUE,
+             # conf.level = 0.95, ...)
+# {
+	# xc <- x$call
+	# x <- aov(x)
+	# x$call <- xc
+    # mm <- model.tables(x, "means")
+    # if(is.null(mm$n))
+        # stop("no factors in the fitted model")
+    # tabs <- mm$tables[-1L]
+    # tabs <- tabs[which]
+    # ## mm$n need not be complete -- factors only -- so index by names
+    # nn <- mm$n[names(tabs)]
+    # nn_na <- is.na(nn)
+    # if(all(nn_na))
+        # stop("'which' specified no factors")
+    # if(any(nn_na)) {
+        # warning("'which' specified some non-factors which will be dropped")
+        # tabs <- tabs[!nn_na]
+        # nn <- nn[!nn_na]
+    # }
+    # out <- vector("list", length(tabs))
+    # names(out) <- names(tabs)
+    # MSE <- sum(resid(x)^2, na.rm=TRUE)/x$df.residual
+    # for (nm in names(tabs)) {
+        # tab <- tabs[[nm]]
+        # means <- as.vector(tab)
+        # nms <- if(length(d <- dim(tab)) > 1L) {
+            # dn <- dimnames(tab)
+            # apply(do.call("expand.grid", dn), 1L, paste, collapse=":")
+        # } else names(tab)
+        # n <- nn[[nm]]
+        # ## expand n to the correct length if necessary
+        # if (length(n) < length(means)) n <- rep.int(n, length(means))
+        # if (as.logical(ordered)) {
+            # ord <- order(means)
+            # means <- means[ord]
+            # n <- n[ord]
+            # if (!is.null(nms)) nms <- nms[ord]
+        # }
+        # center <- outer(means, means, "-")
+        # keep <- lower.tri(center)
+        # center <- center[keep]
+        # width <- qtukey(conf.level, length(means), x$df.residual) *
+            # sqrt((MSE/2) * outer(1/n, 1/n, "+"))[keep]
+        # est <- center/(sqrt((MSE/2) * outer(1/n, 1/n, "+"))[keep])
+        # pvals <- ptukey(abs(est),length(means),x$df.residual,lower.tail=FALSE)
+        # dnames <- list(NULL, c("diff", "lwr", "upr","p adj"))
+        # if (!is.null(nms)) dnames[[1L]] <- outer(nms, nms, paste, sep = "-")[keep]
+        # out[[nm]] <- array(c(center, center - width, center + width,pvals),
+                           # c(length(width), 4), dnames)
+    # }
+    # class(out) <- c("multicomp", "TukeyHSD")
+    # attr(out, "orig.call") <- x$call
+    # attr(out, "conf.level") <- conf.level
+    # attr(out, "ordered") <- ordered
+	# attr(out, "data") <- x$model
+    # out
+# }
 
-#################################################
-#### TukeyHSD
-print.TukeyHSD <- function(x, digits=getOption("digits"), ...)
-{
-    cat("  Tukey multiple comparisons of means\n")
-    cat("    ", format(100*attr(x, "conf.level"), 2),
-        "% family-wise confidence level\n", sep="")
-    if (attr(x, "ordered"))
-        cat("    factor levels have been ordered\n")
-    cat("\nFit: ", deparse(attr(x, "orig.call"), 500), "\n\n", sep="")
-    xx <- unclass(x)
-    attr(xx, "data") <- attr(xx, "orig.call") <- attr(xx, "conf.level") <- attr(xx, "ordered") <- NULL
-    xx[] <- lapply(xx, function(z, digits)
-               {z[, "p adj"] <- round(z[, "p adj"], digits); z},
-                   digits=digits)
-    print.default(xx, digits, ...)
-    invisible(x)
-}
+# #################################################
+# #### TukeyHSD
+# print.TukeyHSD <- function(x, digits=getOption("digits"), ...)
+# {
+    # cat("  Tukey multiple comparisons of means\n")
+    # cat("    ", format(100*attr(x, "conf.level"), 2),
+        # "% family-wise confidence level\n", sep="")
+    # if (attr(x, "ordered"))
+        # cat("    factor levels have been ordered\n")
+    # cat("\nFit: ", deparse(attr(x, "orig.call"), 500), "\n\n", sep="")
+    # xx <- unclass(x)
+    # attr(xx, "data") <- attr(xx, "orig.call") <- attr(xx, "conf.level") <- attr(xx, "ordered") <- NULL
+    # xx[] <- lapply(xx, function(z, digits)
+               # {z[, "p adj"] <- round(z[, "p adj"], digits); z},
+                   # digits=digits)
+    # print.default(xx, digits, ...)
+    # invisible(x)
+# }
 
-#################################################
-#### TukeyHSD
-plot.TukeyHSD <- function (x, ...)
-{
-    for (i in seq_along(x)) {
-        xi <- x[[i]][, -4, drop=FALSE] # drop p-values
-        yvals <- nrow(xi):1
-        dev.hold(); on.exit(dev.flush())
-        plot(c(xi[, "lwr"], xi[, "upr"]), rep.int(yvals, 2), type = "n",
-             axes = FALSE, xlab = "", ylab = "", ...)
-        axis(1, ...)
-        axis(2, at = nrow(xi):1, labels = dimnames(xi)[[1L]],
-             srt = 0, ...)
-        abline(h = yvals, lty = 1, lwd = 0.5, col = "lightgray")
-        abline(v = 0, lty = 2, lwd = 0.5, ...)
-        segments(xi[, "lwr"], yvals, xi[, "upr"], yvals, ...)
-        segments(as.vector(xi), rep.int(yvals - 0.1, 3), as.vector(xi),
-                 rep.int(yvals + 0.1, 3), ...)
-        title(main = paste(format(100 * attr(x, "conf.level"),
-              2), "% family-wise confidence level\n", sep = ""),
-              xlab = paste("Differences in mean levels of", names(x)[i]))
-        box()
-    }
-}
+# #################################################
+# #### TukeyHSD
+# plot.TukeyHSD <- function (x, ...)
+# {
+    # for (i in seq_along(x)) {
+        # xi <- x[[i]][, -4, drop=FALSE] # drop p-values
+        # yvals <- nrow(xi):1
+        # dev.hold(); on.exit(dev.flush())
+        # plot(c(xi[, "lwr"], xi[, "upr"]), rep.int(yvals, 2), type = "n",
+             # axes = FALSE, xlab = "", ylab = "", ...)
+        # axis(1, ...)
+        # axis(2, at = nrow(xi):1, labels = dimnames(xi)[[1L]],
+             # srt = 0, ...)
+        # abline(h = yvals, lty = 1, lwd = 0.5, col = "lightgray")
+        # abline(v = 0, lty = 2, lwd = 0.5, ...)
+        # segments(xi[, "lwr"], yvals, xi[, "upr"], yvals, ...)
+        # segments(as.vector(xi), rep.int(yvals - 0.1, 3), as.vector(xi),
+                 # rep.int(yvals + 0.1, 3), ...)
+        # title(main = paste(format(100 * attr(x, "conf.level"),
+              # 2), "% family-wise confidence level\n", sep = ""),
+              # xlab = paste("Differences in mean levels of", names(x)[i]))
+        # box()
+    # }
+# }
 
 
-#################################################
-#### Compact letter display
-cld <- function(object, level = 1-attr(object, "conf.level")){
-  N.eff <- length(object)
-  ret   <- list()
-  for(e in 1:N.eff){
-	effect <- names(object[e])
-	  cont  <- rownames(object[[e]])
-	  cont.split <- strsplit(cont,"-", fixed=TRUE)
-	  levs  <- unique(unlist(cont.split))
-	  pvals <- object[[e]][,4]
-	  data  <- attr(object, "data")
-	  means <- sort(tapply(data[[1]],data[,effect],mean))
-	  N <- length(means)
-	  M <- matrix(0,ncol=N,nrow=N)
-	  dimnames(M) <- list(names(means),names(means))
-	  for(i in 1:length(cont.split)){
-		M[cont.split[[i]][1],cont.split[[i]][2]] <- pvals[i]
-	  }
-	  M <- M+t(M)
-	  comp <- matrix(FALSE,N,N); diag(comp) <- TRUE
-	  for(i in 1:(N-1)){
-		j <- i+1
-		while(j<=N && M[i,j]>level){
-		  comp[j,i] <- TRUE
-		  j <- j+1
-		}
-	  }
-	  for(i in 2:N){
-		k <- max(which(comp[,i]))
-		j <- i-1
-		while(j>=1 && M[k,j]>level){
-		  comp[j,i] <- TRUE
-		  j <- j-1
-		}
-	  }
-	  comp <- t(unique(t(comp)))
-	  dimnames(comp) <- list(names(means),LETTERS[1:dim(comp)[2]])
-	  cld <- matrix("",nrow=N,ncol=dim(comp)[2])
+# #################################################
+# #### Compact letter display
+# cld <- function(object, level = 1-attr(object, "conf.level")){
+  # N.eff <- length(object)
+  # ret   <- list()
+  # for(e in 1:N.eff){
+	# effect <- names(object[e])
+	  # cont  <- rownames(object[[e]])
+	  # cont.split <- strsplit(cont,"-", fixed=TRUE)
+	  # levs  <- unique(unlist(cont.split))
+	  # pvals <- object[[e]][,4]
+	  # data  <- attr(object, "data")
+	  # means <- sort(tapply(data[[1]],data[,effect],mean))
+	  # N <- length(means)
+	  # M <- matrix(0,ncol=N,nrow=N)
+	  # dimnames(M) <- list(names(means),names(means))
+	  # for(i in 1:length(cont.split)){
+		# M[cont.split[[i]][1],cont.split[[i]][2]] <- pvals[i]
+	  # }
+	  # M <- M+t(M)
+	  # comp <- matrix(FALSE,N,N); diag(comp) <- TRUE
+	  # for(i in 1:(N-1)){
+		# j <- i+1
+		# while(j<=N && M[i,j]>level){
+		  # comp[j,i] <- TRUE
+		  # j <- j+1
+		# }
+	  # }
+	  # for(i in 2:N){
+		# k <- max(which(comp[,i]))
+		# j <- i-1
+		# while(j>=1 && M[k,j]>level){
+		  # comp[j,i] <- TRUE
+		  # j <- j-1
+		# }
+	  # }
+	  # comp <- t(unique(t(comp)))
+	  # dimnames(comp) <- list(names(means),LETTERS[1:dim(comp)[2]])
+	  # cld <- matrix("",nrow=N,ncol=dim(comp)[2])
 	  
-	  for(i in 1:dim(comp)[2]){
-		cld[comp[,i],i] <- LETTERS[i]
+	  # for(i in 1:dim(comp)[2]){
+		# cld[comp[,i],i] <- LETTERS[i]
+	  # }
+	  # rownames(cld) <- rownames(comp)
+	  # cld <- data.frame(gr=I(cld),means=means)
+	  # ret[[effect]] <- list(comp=comp,cld=cld)
+  # }
+  # class(ret) <- "cld"
+  # ret
+# }
+
+# print.cld <- function(x, ...){
+	# for(i in 1:length(x))
+		# print(x[[i]]$cld)
+# }
+
+
+# Kommenter, flette inn generalTukey med effect
+simple.glht <- function(mod, effect, corr = c("Tukey","Bonferroni","Fisher"), level = 0.95, ...) {
+	if(missing(corr)){
+		corr <- "Tukey"
+	}
+	chkdots <- function(...) {
+
+		lst <- list(...)
+		if (length(lst) > 0) {
+			warning("Argument(s) ", sQuote(names(lst)), " passed to ", sQuote("..."), 
+					" are ignored", call. = TRUE)
+		}
+	}
+	generalTukey <- function(mod,effect, ...){
+	  if(grepl(":", effect)){
+		pro  <- sub(":", "*", effect)
+		prox <- sub(":", "_", effect)
+		cola <- sub(":", "",  effect)
+		spli <- unlist(strsplit(effect,":"))
+		data <- model.frame(mod)
+		eval(parse(text=paste("data$",prox," <- with(data, interaction(", paste(spli,collapse=",",sep=""),", sep=':'))")))
+		mod <- update(mod, formula(paste(".~-", pro, "+",prox)), data=data)
+		ret <- eval(parse(text=paste("glht(mod, linfct=mcp(",prox,"='Tukey'))")))
+	  } else {
+		ret <- eval(parse(text=paste("glht(mod, linfct=mcp(",effect,"='Tukey'),...)")))
 	  }
-	  rownames(cld) <- rownames(comp)
-	  cld <- data.frame(gr=I(cld),means=means)
-	  ret[[effect]] <- list(comp=comp,cld=cld)
-  }
-  class(ret) <- "cld"
-  ret
+	  ret
+	}
+	object <- generalTukey(mod,effect,...)
+
+    chkdots(...)
+	
+	test <- switch(corr,
+         Tukey      = adjusted(),
+         Bonferroni = adjusted("bonferroni"),
+         Fisher     = univariate())
+	calpha <- switch(corr,
+         Tukey      = adjusted_calpha(),
+         Bonferroni = adjusted_calpha("bonferroni"),
+         Fisher     = univariate_calpha())
+
+	ts <- test(object)
+    object$test <- ts
+
+    type <- attr(calpha, "type")
+    if (is.function(calpha))
+        calpha <- calpha(object, level)
+    if (!is.numeric(calpha) || length(calpha) != 1)
+        stop(sQuote("calpha"), " is not a scalar")
+    error <- attr(calpha, "error")
+    attributes(calpha) <- NULL
+
+    betahat <- coef(object)
+    ses <- sqrt(diag(vcov(object)))
+    switch(object$alternative, "two.sided" = {
+            LowerCL <- betahat - calpha * ses
+            UpperCL <- betahat + calpha * ses
+        }, "less" = {
+            LowerCL <- rep(-Inf, length(ses))
+            UpperCL <- betahat + calpha * ses
+        }, "greater" = {
+            LowerCL <- betahat + calpha * ses
+            UpperCL <- rep( Inf, length(ses))
+    })
+
+    ci <- cbind(LowerCL, UpperCL)
+    colnames(ci) <- c("lower", "upper")
+    object$confint <- cbind(betahat, ci)
+    colnames(object$confint) <- c("Estimate", "lwr", "upr")
+    attr(object$confint, "conf.level") <- level
+    attr(object$confint, "calpha") <- calpha
+    attr(object$confint, "error") <- error
+    if (is.null(type)) type <- "univariate"
+    attr(object, "type") <- type
+	attr(object, "corr") <- corr
+    class(object) <- switch(class(ts), "mtest" = "summary.glht",
+                                       "gtest" = "summary.gtest")
+    class(object) <- c("simple.glht", class(object), "glht")
+    return(object)
 }
 
-print.cld <- function(x, ...){
-	for(i in 1:length(x))
-		print(x[[i]]$cld)
+
+print.simple.glht <- function(x, digits = max(3, getOption("digits") - 3), 
+                              ...) 
+{
+    cat("\n\t", "Simultaneous Confidence Intervals and Tests for General Linear Hypotheses\n\n")
+    if (!is.null(x$type))
+        cat("Multiple Comparisons of Means:", attr(x, "corr"), "Contrasts\n\n\n")
+    if (!is.null(x$type))
+    level <- attr(x$confint, "conf.level")
+    attr(x$confint, "conf.level") <- NULL
+    cat("Fit: ")
+    if (isS4(x$model)) {
+        print(x$model@call)
+    } else {
+        print(x$model$call)
+    }
+    cat("\n")
+    error <- attr(x$confint, "error")
+    if (!is.null(error) && error > .Machine$double.eps)
+        digits <- min(digits, which.min(abs(1 / error - (10^(1:10)))))
+    cat("Quantile =", round(attr(x$confint, "calpha"), digits))
+    cat("\n")
+    if (attr(x, "type") == "adjusted") {
+        cat(paste(level * 100, 
+                  "% family-wise confidence level\n", sep = ""), "\n\n")
+    } else {
+        cat(paste(level * 100, 
+                  "% confidence level\n", sep = ""), "\n\n")
+    }
+    
+    ### <FIXME>: compute coefmat in summary.glht for easier access???
+    pq <- x$test
+    mtests <- cbind(pq$coefficients, pq$sigma, pq$tstat, pq$pvalues)
+    error <- attr(pq$pvalues, "error")
+    pname <- switch(x$alternativ,
+        "less" = paste("Pr(<", ifelse(x$df == 0, "z", "t"), ")", sep = ""),
+        "greater" = paste("Pr(>", ifelse(x$df == 0, "z", "t"), ")", sep = ""),
+        "two.sided" = paste("Pr(>|", ifelse(x$df == 0, "z", "t"), "|)", sep = ""))
+    colnames(mtests) <- c("Estimate", "Std. Error",
+        ifelse(x$df == 0, "z value", "t value"), pname)
+    type <- pq$type
+
+    ### print p values according to simulation precision
+    if (!is.null(error) && error > .Machine$double.eps) {
+        sig <- which.min(abs(1 / error - (10^(1:10))))
+        sig <- 1 / (10^sig)
+    } else {
+        sig <- .Machine$double.eps
+    }
+    cat("Linear Hypotheses:\n")
+    alt <- switch(x$alternative,
+                  "two.sided" = "==", "less" = ">=", "greater" = "<=")
+    rownames(mtests) <- paste(rownames(mtests), alt, x$rhs)
+    ### </FIXME>
+
+    rownames(x$confint) <- paste(rownames(x$confint), alt, x$rhs)
+	mtests <- cbind(x$confint,mtests[,2:4,drop=FALSE])
+    printCoefmat(mtests, digits = digits, 
+                 has.Pvalue = TRUE, P.values = TRUE, eps.Pvalue = sig)
+
+    switch(type, 
+        "univariate" = cat("(Univariate p values reported)"),
+        "single-step" = cat("(Adjusted p values reported -- single-step method)"),
+        "Shaffer" = cat("(Adjusted p values reported -- Shaffer method)"),
+        "Westfall" = cat("(Adjusted p values reported -- Westfall method)"),
+        cat("(Adjusted p values reported --", type, "method)")
+    )
+    cat("\n\n")
+    invisible(x)                    
 }
 
+#cld.simple.glht <- function(object, decreasing = FALSE, ...) {
+#	multcomp:::cld.summary.glht(object, decreasing = FALSE, ...)
+#}
