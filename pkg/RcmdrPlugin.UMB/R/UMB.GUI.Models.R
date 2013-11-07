@@ -561,17 +561,17 @@ postHocGUI <- function(){
   initializeDialog(title=gettextRcmdr("Post hoc pair-wise tests"))
   .activeModel <- ActiveModel()
   effects <- eval(parse(text=paste("attr(terms(formula(",.activeModel,")),'term.labels')", sep="")))
-  if(glmP()){
-	effects <- effects[!grepl(":",effects)]
-  }
+#  if(glmP()){
+#	effects <- effects[!grepl(":",effects)]
+#  }
   xFrame <- tkframe(top)
-  if(glmP()){
+#  if(glmP()){
     xBox <- variableListBox(xFrame, effects,
-                            title=gettextRcmdr("Effects (pick one or more)"))
-  } else {
-    xBox <- variableListBox(xFrame, effects, selectmode="multiple",
-                            title=gettextRcmdr("Effects (pick one or more)"))
-  }
+                            title=gettextRcmdr("Effects (pick one)"))
+ # } else {
+  #  xBox <- variableListBox(xFrame, effects, selectmode="multiple",
+   #                         title=gettextRcmdr("Effects (pick one or more)"))
+  #}
   comboFrame <- tkframe(top)
   levs <- justDoIt(paste(.activeModel, "$xlevels", sep=""))
   levNames <- names(levs)
@@ -597,39 +597,47 @@ postHocGUI <- function(){
 
     the.tukey <- tclvalue(tukeyName)
     if(tclvalue(tukeyTestsVariable)== gettextRcmdr("1")){
-	  if(glmP()){
-		command <- paste("summary(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey')))", sep="")
-	  } else {
-        command <- paste("TukeyHSD(", ActiveModel(), ",",selected,", conf.level=",the.tukey,")",sep="")
-	  }
+		command <- paste("print(simple.glht(", ActiveModel(), ",",selected,", level=", the.tukey,"))",sep="")
+#	  if(glmP()){
+#		command <- paste("summary(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey')))", sep="")
+#	  } else {
+#        command <- paste("TukeyHSD(", ActiveModel(), ",",selected,", conf.level=",the.tukey,")",sep="")
+#	  }
       doItAndPrint(command)
     } 
     if(tclvalue(tukeyGroupsVariable)== gettextRcmdr("1")){
-	  if(glmP()){
-		command <- paste("multcomp:::print.cld(multcomp::cld(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey'))))", sep="")
-	  } else {
-		command <- paste("cld(TukeyHSD(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.tukey),")", sep="")
-	  }
+		command <- paste("cld(simple.glht(", ActiveModel(), ",",selected,", level=", the.tukey,"))",sep="")
+#	  if(glmP()){
+#		command <- paste("multcomp:::print.cld(multcomp::cld(glht(", ActiveModel(), ", linfct=mcp(", x, "='Tukey'))))", sep="")
+#	  } else {
+#		command <- paste("cld(TukeyHSD(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.tukey),")", sep="")
+#	  }
       doItAndPrint(command)
     }
 
-	if(!glmP()){
+#	if(!glmP()){
 		the.bonferroni <- tclvalue(bonferroniName)
 		if(tclvalue(bonferroniTestsVariable)== gettextRcmdr("1")){
-		  command <- paste("Bonferroni(", ActiveModel(), ",",selected,", conf.level=",the.bonferroni,")",sep="")
+		  command <- paste("print(simple.glht(", ActiveModel(), ",",selected,", corr='Bonferroni', level=", the.tukey,"))",sep="")
+#		  command <- paste("Bonferroni(", ActiveModel(), ",",selected,", conf.level=",the.bonferroni,")",sep="")
 		  doItAndPrint(command)
 		}
 		if(tclvalue(bonferroniGroupsVariable)== gettextRcmdr("1")){
-		  doItAndPrint(paste("cld(Bonferroni(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.bonferroni), ")", sep=""))
+		  command <- paste("cld(simple.glht(", ActiveModel(), ",",selected,", corr='Bonferroni', level=", the.tukey,"))",sep="")
+		  doItAndPrint(command)
+#		  doItAndPrint(paste("cld(Bonferroni(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.bonferroni), ")", sep=""))
 		}
 
 		the.fisher <- tclvalue(fisherName)
 		if(tclvalue(fisherTestsVariable)== gettextRcmdr("1")){
-		  command <- paste("Fisher(", ActiveModel(), ",",selected,", conf.level=",the.fisher,")",sep="")
+		  command <- paste("print(simple.glht(", ActiveModel(), ",",selected,", corr='Fisher', level=", the.tukey,"))",sep="")
+#		  command <- paste("Fisher(", ActiveModel(), ",",selected,", conf.level=",the.fisher,")",sep="")
 		  doItAndPrint(command)
 		}
 		if(tclvalue(fisherGroupsVariable)== gettextRcmdr("1")){
-		  doItAndPrint(paste("cld(Fisher(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.fisher), ")", sep=""))
+		  command <- paste("cld(simple.glht(", ActiveModel(), ",",selected,", corr='Fisher', level=", the.tukey,"))",sep="")
+		  doItAndPrint(command)
+#		  doItAndPrint(paste("cld(Fisher(", ActiveModel(), ", ", selected, "), ", 1-as.numeric(the.fisher), ")", sep=""))
 		}
 		
 		if(length(selectedDunnett)>0){
@@ -651,11 +659,11 @@ postHocGUI <- function(){
 			doItAndPrint(paste(ActiveModel(), " <- update(",ActiveModel(),")",sep=""))
 		  }
 		}
-	}
+#	}
     closeDialog()
     return()
   }
-  OKCancelHelp(helpSubject="glht")
+  OKCancelHelp(helpSubject="simple.glht")
   tkgrid(getFrame(xBox), sticky="nw")
   tkgrid(xFrame, row=1, column=1, columnspan=2, sticky="w")
   
@@ -671,7 +679,7 @@ postHocGUI <- function(){
   tkgrid(labelRcmdr(tukeyFrameGr, text=gettextRcmdr("Confidence")), tukey, sticky="w")
   tkgrid(tukeyFrameGr, sticky="w", row=3, column=2)
   
-  if(!glmP()){
+#  if(!glmP()){
 	  topFrame2 <- tkframe(top)
 	  tkgrid(labelRcmdr(topFrame2, text=gettextRcmdr("Bonferroni"), fg="blue"),sticky="w")
 	  tkgrid(topFrame2, row=4, column=1, columnspan=1, sticky="w")
@@ -702,10 +710,9 @@ postHocGUI <- function(){
 	  combo <- ttkcombobox(comboFrame, values=values, textvariable=comboVar)
 	  tkgrid(labelRcmdr(comboFrame, text=gettextRcmdr("Choose comparison:")), combo, sticky="w")
 	  tkgrid(comboFrame, sticky="w", column=1, row=9, columnspan=2)
-  }
-  nrow <- ifelse(glmP(),4,10)
-  tkgrid(buttonsFrame, sticky="w", column=1, row=nrow, columnspan=2)
-  dialogSuffix(rows=nrow, columns=2)
+#  }
+  tkgrid(buttonsFrame, sticky="w", column=1, row=10, columnspan=2)
+  dialogSuffix(rows=10, columns=2)
 }
 
 
