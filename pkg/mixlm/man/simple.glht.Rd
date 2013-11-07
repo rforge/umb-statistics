@@ -1,23 +1,12 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
-\name{TukeyHSD}
-\alias{TukeyHSD}
-\alias{TukeyHSD.lm}
-\alias{print.TukeyHSD}
-\alias{plot.TukeyHSD}
-\alias{Fisher}
-\alias{Fisher.lm}
-\alias{print.Fisher}
-\alias{plot.Fisher}
-\alias{Bonferroni}
-\alias{Bonferroni.lm}
-\alias{print.Bonferroni}
-\alias{plot.Bonferroni}
+\name{simple.glht}
+\alias{print.simple.glht}
 \title{
 Pairwise comparison with multiple testing compensation.
 }
 \description{
-  Adaptation of TukeyHSD from the R base package to handle
+  Extension of glht from the multcomp package to handle
   Fisher family-wise error and Bonferroni testing.
   Create a set of confidence intervals on the differences between the
   means of the levels of a factor with the specified family-wise
@@ -27,22 +16,18 @@ Pairwise comparison with multiple testing compensation.
 
 }
 \usage{
+simple.glht <- function(mod, effect, corr = c("Tukey","Bonferroni","Fisher"), level = 0.95, \dots)
 TukeyHSD(x, which, ordered = TRUE, conf.level = 0.95, \dots)
 Bonferroni(x, which, ordered = TRUE, conf.level = 0.95, \dots)
 Fisher(x, which, ordered = TRUE, conf.level = 0.95, \dots)
 }
 \arguments{
- \item{x}{A fitted model object, usually an \code{\link{aov}} fit.}
- \item{which}{A character vector listing terms in the fitted model for
-   which the intervals should be calculated.  Defaults to all the
-   terms.}
-  \item{ordered}{A logical value indicating if the levels of the factor
-   should be ordered according to increasing average in the sample
-   before taking differences.  If \code{ordered} is true then
-   the calculated differences in the means will all be positive.  The
-   significant differences will be those for which the \code{lwr} end
-   point is positive.}
- \item{conf.level}{A numeric value between zero and one giving the
+ \item{mod}{A fitted model object, usually an \code{\link{lm}} or \code{\link{glm}} fit.}
+ \item{effect}{A character vector giving the term of the fitted model for
+   which the intervals should be calculated. This can also be an interaction.}
+  \item{corr}{A character vector giving the multiple testing correction
+  method. Defaults to \code{Tukey}.}
+ \item{level}{A numeric value between zero and one giving the
    family-wise confidence level to use.}
  \item{\dots}{Optional additional arguments.  None are used at present.}
 }
@@ -70,17 +55,12 @@ Fisher(x, which, ordered = TRUE, conf.level = 0.95, \dots)
   a warning: if no terms are left this is a an error.
 }
 \value{
-  A list of class \code{c("multicomp", "TukeyHSD")},
-  \code{c("multicomp", "Fisher")}, or \code{c("multicomp", "Bonferroni")},
-  with one component for each term requested in \code{which}.
-  Each component is a matrix with columns \code{diff} giving the
-  difference in the observed means, \code{lwr} giving the lower
-  end point of the interval, \code{upr} giving the upper end point
-  and \code{p adj} giving the p-value after adjustment for the multiple
-  comparisons.
+  An object of classes \code{"simple.glht"}, \code{"summary.glht"}
+  and \code{"glht"} containing information to produce confidence intervals,
+  tests and plotting.
 
-  There are \code{print} and \code{plot} methods for class
-  \code{"TukeyHSD"}, \code{"Fisher"} and \code{"Bonferroni"}.
+  There are \code{print}, \code{plot} and \code{cld} methods for class
+  \code{"simple.glht"}.
   The \code{plot} method does not accept
   \code{xlab}, \code{ylab} or \code{main} arguments and creates its own
   values for each plot.
@@ -104,8 +84,9 @@ Fisher(x, which, ordered = TRUE, conf.level = 0.95, \dots)
 require(graphics)
 
 summary(fm1 <- lm(breaks ~ wool + tension, data = warpbreaks))
-TukeyHSD(fm1, "tension", ordered = TRUE)
-plot(TukeyHSD(fm1, "tension"))
+simple.glht(fm1, "tension")
+plot(simple.glht(fm1, "tension"))
+cld(simple.glht(fm1, "tension"))
 }
 \keyword{models}
 \keyword{design}

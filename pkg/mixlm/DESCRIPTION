@@ -2,7 +2,7 @@ Package: mixlm
 Type: Package
 Title: Mixed model ANOVA for lm and lmer
 Version: 0.6.2
-Date: 2013-10-28
+Date: 2013-11-07
 Author: Kristian Hovde Liland, Solve Sæbø
 Maintainer: Kristian Hovde Liland <kristian.liland@umb.no>
 Encoding: latin1
