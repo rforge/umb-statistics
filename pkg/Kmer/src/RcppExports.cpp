@@ -22,6 +22,40 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// Kmer_matrix_alien
+IntegerMatrix Kmer_matrix_alien(SEXP seqs, int K, bool names);
+RcppExport SEXP Kmer_Kmer_matrix_alien(SEXP seqsSEXP, SEXP KSEXP, SEXP namesSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type seqs(seqsSEXP );
+        Rcpp::traits::input_parameter< int >::type K(KSEXP );
+        Rcpp::traits::input_parameter< bool >::type names(namesSEXP );
+        IntegerMatrix __result = Kmer_matrix_alien(seqs, K, names);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// Kmer_matrix_alien_RDP
+IntegerMatrix Kmer_matrix_alien_RDP(SEXP seqs, int K, bool names);
+RcppExport SEXP Kmer_Kmer_matrix_alien_RDP(SEXP seqsSEXP, SEXP KSEXP, SEXP namesSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type seqs(seqsSEXP );
+        Rcpp::traits::input_parameter< int >::type K(KSEXP );
+        Rcpp::traits::input_parameter< bool >::type names(namesSEXP );
+        IntegerMatrix __result = Kmer_matrix_alien_RDP(seqs, K, names);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // Kmer_matrix_classes
 Rcpp::List Kmer_matrix_classes(SEXP seqs, int K, bool names, SEXP classesIn, int nclass);
 RcppExport SEXP Kmer_Kmer_matrix_classes(SEXP seqsSEXP, SEXP KSEXP, SEXP namesSEXP, SEXP classesInSEXP, SEXP nclassSEXP) {
@@ -35,6 +69,23 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< SEXP >::type classesIn(classesInSEXP );
         Rcpp::traits::input_parameter< int >::type nclass(nclassSEXP );
         Rcpp::List __result = Kmer_matrix_classes(seqs, K, names, classesIn, nclass);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// Kmer_matrix_RDP
+IntegerMatrix Kmer_matrix_RDP(SEXP seqs, int K, bool names);
+RcppExport SEXP Kmer_Kmer_matrix_RDP(SEXP seqsSEXP, SEXP KSEXP, SEXP namesSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type seqs(seqsSEXP );
+        Rcpp::traits::input_parameter< int >::type K(KSEXP );
+        Rcpp::traits::input_parameter< bool >::type names(namesSEXP );
+        IntegerMatrix __result = Kmer_matrix_RDP(seqs, K, names);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

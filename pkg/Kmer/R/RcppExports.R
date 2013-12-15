@@ -5,7 +5,19 @@ Kmer_matrix <- function(seqs, K, names) {
     .Call('Kmer_Kmer_matrix', PACKAGE = 'Kmer', seqs, K, names)
 }
 
+Kmer_matrix_alien <- function(seqs, K, names) {
+    .Call('Kmer_Kmer_matrix_alien', PACKAGE = 'Kmer', seqs, K, names)
+}
+
+Kmer_matrix_alien_RDP <- function(seqs, K, names) {
+    .Call('Kmer_Kmer_matrix_alien_RDP', PACKAGE = 'Kmer', seqs, K, names)
+}
+
 Kmer_matrix_classes <- function(seqs, K, names, classesIn, nclass) {
     .Call('Kmer_Kmer_matrix_classes', PACKAGE = 'Kmer', seqs, K, names, classesIn, nclass)
+}
+
+Kmer_matrix_RDP <- function(seqs, K, names) {
+    .Call('Kmer_Kmer_matrix_RDP', PACKAGE = 'Kmer', seqs, K, names)
 }
 
