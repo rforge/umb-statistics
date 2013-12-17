@@ -25,8 +25,8 @@ IntegerMatrix Kmer_matrix_alien( SEXP seqs, int K, bool names ) {
       for( int k=0; k<K; k++){
         where += seq1[j+k]*Where[k];
       }
-      
-      if(where > 0){
+
+      if(where >= 0){
         ++X(i, where);
       }
     }

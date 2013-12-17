@@ -26,7 +26,7 @@ IntegerMatrix Kmer_matrix_alien_RDP( SEXP seqs, int K, bool names ) {
         where += seq1[j+k]*Where[k];
       }
       
-      if(where > 0){
+      if(where >= 0){
         X(i, where) = 1;
       }
     }
