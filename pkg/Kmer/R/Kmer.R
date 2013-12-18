@@ -25,6 +25,7 @@ KmerAlienRDP <- function(Seq, K, names=FALSE){
   rownames(X) <- names(Seq)
   X
 }
+
 # K-mer matrix and sum per class, e.g. per genus
 Kmer_classes <- function(Seq, K, names=FALSE, classes){
   classesInt <- classes
@@ -32,13 +33,26 @@ Kmer_classes <- function(Seq, K, names=FALSE, classes){
     classesInt  <- factor(classes)
     classLevels <- levels(classesInt)
     classesInt  <- as.integer(classesInt)
-    classUnique <- unique(classesInt)
   }
   X <- Kmer_matrix_classes(char2int(Seq), K, names, classesInt, max(classesInt))
   rownames(X$X) <- names(Seq)
   if(is.character(classes))
     rownames(X$C) <- classLevels
   X
+}
+
+# K-mer matrix and sum per class, e.g. per genus
+rdpTrain <- function(Seq, classes, K=8, names=FALSE){
+  classesInt <- classes
+  if(is.character(classes)){
+    classesInt  <- factor(classes)
+    classLevels <- levels(classesInt)
+    classesInt  <- as.integer(classesInt)
+  }
+  C <- Kmer_matrix_class_alien_RDP(char2intAlien(Seq,K), K, names, classesInt-1, max(classesInt), as.numeric(table(classes)))
+  if(is.character(classes))
+    rownames(C) <- classLevels
+  C
 }
 
 # Recode character to integer vectors

@@ -2,12 +2,19 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
-IntegerMatrix Kmer_matrix_alien_RDP( SEXP seqs, int K, bool names ) {
+NumericMatrix Kmer_matrix_class_alien_RDP( SEXP seqs, int K, bool names, SEXP classesIn, int nclass, SEXP Min ) {
   
   Rcpp::List strings(seqs);
-  int num_strings = strings.length();
-  IntegerMatrix X(num_strings, pow(4,K));
+  IntegerVector classes(classesIn);
+  NumericVector M(Min);
   int where = 0;
+  int nElem = pow(4,K);
+  int num_strings = strings.length();
+  double pj = 0;
+  NumericMatrix C(nclass, nElem);
+  NumericVector p(nElem);
+  LogicalVector X(nElem);
+  bool alien = false;
   std::vector<int> Where(K);
   
   for(int i=0; i < K; i++){
@@ -26,11 +33,25 @@ IntegerMatrix Kmer_matrix_alien_RDP( SEXP seqs, int K, bool names ) {
       }
       
       if(where >= 0){
-        X(i, where) = 1;
+        X(where) = true;
+      }
+    }
+    
+    for(int j=0; j < nElem; j++){
+      if(X(j)){
+        ++C(classes[i],j);
+        ++p(j);
+        X(j) = false;
       }
     }
   }
   
+  for(int j=0; j < nElem; j++){
+    pj = (p(j)+0.5)/(num_strings+1);
+    for(int i=0; i < nclass; i++){
+      C(i,j) = (C(i,j)+pj)/(M(i)+1.0);
+    }
+  }  
   
   if(names){
     int N = pow(4,K);
@@ -51,8 +72,8 @@ IntegerMatrix Kmer_matrix_alien_RDP( SEXP seqs, int K, bool names ) {
       cnms[i] = ss.str();      
     }
     Rcpp::List dimnms = Rcpp::List::create(R_NilValue, cnms);
-    X.attr("dimnames") = dimnms;
+    C.attr("dimnames") = dimnms;
   }
   
-  return X;
+  return C;
 }
