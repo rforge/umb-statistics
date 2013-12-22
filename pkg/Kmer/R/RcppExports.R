@@ -21,6 +21,10 @@ Kmer_matrix_class_alien_RDP <- function(seqs, K, names, classesIn, nclass, Min) 
     .Call('Kmer_Kmer_matrix_class_alien_RDP', PACKAGE = 'Kmer', seqs, K, names, classesIn, nclass, Min)
 }
 
+Kmer_classify_alien_RDP <- function(Qin, seqs, K) {
+    .Call('Kmer_Kmer_classify_alien_RDP', PACKAGE = 'Kmer', Qin, seqs, K)
+}
+
 Kmer_matrix_RDP <- function(seqs, K, names) {
     .Call('Kmer_Kmer_matrix_RDP', PACKAGE = 'Kmer', seqs, K, names)
 }

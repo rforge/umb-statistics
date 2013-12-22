@@ -10,6 +10,11 @@
 \alias{Kmer_matrix_alien}
 \alias{Kmer_matrix_alien_RDP}
 \alias{Kmer_matrix_classes}
+\alias{rdpClassify}
+\alias{rdpTrain}
+\alias{Kmer_matrix_class_alien_RDP}
+\alias{Kmer_classify_alien_RDP}
+\alias{char2intAlien}
 \alias{char2int}
 \docType{package}
 \title{

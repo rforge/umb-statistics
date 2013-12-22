@@ -14,29 +14,34 @@ NumericMatrix Kmer_matrix_class_alien_RDP( SEXP seqs, int K, bool names, SEXP cl
   NumericMatrix C(nclass, nElem);
   NumericVector p(nElem);
   LogicalVector X(nElem);
-  bool alien = false;
   std::vector<int> Where(K);
   
+  // Prepare powers of 4
   for(int i=0; i < K; i++){
     Where[i] = pow(4,K-i-1);
   }
   
+  // Loop over sequences
   for( int i=0; i < num_strings; i++ ) {
     SEXP s1 = strings[i];
     Rcpp::IntegerVector seq1(s1);
     int num_substr = seq1.length() - K + 1;
     
+    // Loop over characters in sequence
     for( int j=0; j < num_substr; j++ ) {
+      // Find location in result by looping over K positions
       where = 0;
       for( int k=0; k<K; k++){
         where += seq1[j+k]*Where[k];
       }
       
+      // Negative values for alien characters
       if(where >= 0){
         X(where) = true;
       }
     }
     
+    // Summarize for groups, e.g. genera
     for(int j=0; j < nElem; j++){
       if(X(j)){
         ++C(classes[i],j);
@@ -46,6 +51,7 @@ NumericMatrix Kmer_matrix_class_alien_RDP( SEXP seqs, int K, bool names, SEXP cl
     }
   }
   
+  // Convert from counts to pseudo probabilities
   for(int j=0; j < nElem; j++){
     pj = (p(j)+0.5)/(num_strings+1);
     for(int i=0; i < nclass; i++){
@@ -53,6 +59,7 @@ NumericMatrix Kmer_matrix_class_alien_RDP( SEXP seqs, int K, bool names, SEXP cl
     }
   }  
   
+  // Create dimnames for output matrix
   if(names){
     int N = pow(4,K);
     Rcpp::CharacterVector ACGT = Rcpp::CharacterVector::create("A","C","G","T");

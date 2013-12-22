@@ -95,6 +95,23 @@ BEGIN_RCPP
     return __sexp_result;
 END_RCPP
 }
+// Kmer_classify_alien_RDP
+IntegerVector Kmer_classify_alien_RDP(SEXP Qin, SEXP seqs, int K);
+RcppExport SEXP Kmer_Kmer_classify_alien_RDP(SEXP QinSEXP, SEXP seqsSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< SEXP >::type Qin(QinSEXP );
+        Rcpp::traits::input_parameter< SEXP >::type seqs(seqsSEXP );
+        Rcpp::traits::input_parameter< int >::type K(KSEXP );
+        IntegerVector __result = Kmer_classify_alien_RDP(Qin, seqs, K);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
 // Kmer_matrix_RDP
 IntegerMatrix Kmer_matrix_RDP(SEXP seqs, int K, bool names);
 RcppExport SEXP Kmer_Kmer_matrix_RDP(SEXP seqsSEXP, SEXP KSEXP, SEXP namesSEXP) {

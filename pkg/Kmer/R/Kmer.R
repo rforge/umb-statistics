@@ -41,7 +41,7 @@ Kmer_classes <- function(Seq, K, names=FALSE, classes){
   X
 }
 
-# K-mer matrix and sum per class, e.g. per genus
+# RDP training function
 rdpTrain <- function(Seq, classes, K=8, names=FALSE){
   classesInt <- classes
   if(is.character(classes)){
@@ -53,6 +53,14 @@ rdpTrain <- function(Seq, classes, K=8, names=FALSE){
   if(is.character(classes))
     rownames(C) <- classLevels
   C
+}
+
+# RDP classification
+rdpClassify <- function(Seq, Q){
+  K <- as.integer( log2( dim( Q )[2] )/2 )
+  C <- Kmer_classify_alien_RDP(Q, char2intAlien(Seq,K), K)
+  C[C<0] <- NA
+  rownames(Q)[C]
 }
 
 # Recode character to integer vectors
