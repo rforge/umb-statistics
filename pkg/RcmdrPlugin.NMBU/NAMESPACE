@@ -1,0 +1,3 @@
+import(stats, Rcmdr, RcmdrPlugin.DoE)
+exportPattern("^[^\\.]") # Export all except .functions
+ 
