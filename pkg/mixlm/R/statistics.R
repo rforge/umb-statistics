@@ -371,7 +371,7 @@ RMSEP <- function(object){
 	}
 	the.RMSEP <- NULL
 	if(class(object)=="mvr"){ # PCR/PLSR
-		the.RMSEP <- rmsep(object, estimate="all")
+		the.RMSEP <- pls::RMSEP(object, estimate="all")
 	}
 	if(class(object)=="lm"){ # Linear regression
 		the.RMSEP <- sqrt(mean(residuals(object)^2/(1-lm.influence(object)$hat)^2))

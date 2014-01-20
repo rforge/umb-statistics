@@ -7,6 +7,7 @@ principalComponentPlots <- function(){
     variablesFrame <- tkframe(top)
 	.numeric <- Variables()
 	.activeModel <- ActiveModel()
+	.activeDataSet <- ActiveDataSet()
     #.numeric <- Numeric()
 	boxFrame1 <- tkframe(top)
 	boxFrame2 <- tkframe(top)
