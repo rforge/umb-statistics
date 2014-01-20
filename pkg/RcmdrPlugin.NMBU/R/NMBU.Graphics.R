@@ -6,6 +6,7 @@ principalComponentPlots <- function(){
     initializeDialog(title=gettextRcmdr("PCA/PCR/PLS plots"))
     variablesFrame <- tkframe(top)
 	.numeric <- Variables()
+	.activeModel <- ActiveModel()
     #.numeric <- Numeric()
 	boxFrame1 <- tkframe(top)
 	boxFrame2 <- tkframe(top)
@@ -21,7 +22,6 @@ principalComponentPlots <- function(){
 	model.class <- justDoIt(paste("class(", .activeModel, ")", sep=""))
 	
     onOK <- function(){ # Actions to perform
-		.activeModel <- ActiveModel()
 		x <- getSelection(xBox)
         closeDialog()
         if (0 != length(x)) {
