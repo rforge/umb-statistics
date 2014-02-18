@@ -151,8 +151,8 @@ best.subsets <- function(model, nbest=5, nvmax, digits, force.in='NULL'){
 	current.data <- model$call$data
 	subsets <- eval(parse(text = paste("regsubsets(full.formula, data=", current.data, ", nbest=nbest, nvmax=nvmax, force.in=",force.in,")")))
 	ss <- summary(subsets)
-	attach(ss)
-	on.exit(detach(ss))
+	attach(ss,name="ss")
+	on.exit(detach("ss"))
 	if(missing(digits)){
 		print(data.frame(outmat,RSS=rss,R2=rsq,R2adj=adjr2,Cp=cp))
 	} else {

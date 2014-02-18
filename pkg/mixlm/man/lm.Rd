@@ -2,6 +2,7 @@
 
 \name{lm}
 \alias{lm}
+\alias{qr.lm}
 \alias{mixlm}
 \alias{print.lm}
 \alias{hijack}

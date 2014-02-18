@@ -1,5 +1,3 @@
-\newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
-
 \name{glm}
 \title{Fitting Generalized Linear Models}
 \alias{glm}
@@ -275,10 +273,10 @@ glm(formula, family = gaussian, data, weights, subset,
   calls GLMs, for \sQuote{general} linear models).
   
   \code{\link{loglin}} and \code{\link[MASS]{loglm}} (package
-  \CRANpkg{MASS}) for fitting log-linear models (which binomial and
+  MASS) for fitting log-linear models (which binomial and
   Poisson GLMs are) to contingency tables.
 
-  \code{bigglm} in package \CRANpkg{biglm} for an alternative
+  \code{bigglm} in package biglm for an alternative
   way to fit GLMs to large datasets (especially those with many cases).
  
   \code{\link{esoph}}, \code{\link{infert}} and

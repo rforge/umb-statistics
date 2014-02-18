@@ -2,9 +2,9 @@ Package: mixlm
 Type: Package
 Title: Mixed model ANOVA for lm and lmer
 Version: 0.6.3
-Date: 2014-01-20
+Date: 2014-02-19
 Author: Kristian Hovde Liland, Solve Sæbø
-Maintainer: Kristian Hovde Liland <kristian.liland@umb.no>
+Maintainer: Kristian Hovde Liland <kristian.liland@nmbu.no>
 Encoding: latin1
 Description: Masks call to mixed models by least squares or REML by adding r() function to formulas of lm and glm.
 Depends: car, lme4, leaps, multcomp, MASS, pls

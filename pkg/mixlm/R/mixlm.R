@@ -1,23 +1,22 @@
 # Startup hijacking
-hijack <- function(name, value, namespace = "base", package = "package:base" ){
-	namespace <- asNamespace( namespace )
-	package   <- as.environment( package )
-	unlockBinding( name, namespace )
-	unlockBinding( name, package )
-	assign( name, value, envir = namespace )
-	assign( name, value, envir = package )
-	lockBinding(name, namespace )
-	lockBinding(name, package )
-}
+# hijack <- function(name, value, namespace = "base", package = "package:base" ){
+# 	namespace <- asNamespace( namespace )
+# 	package   <- as.environment( package )
+# 	unlockBinding( name, namespace )
+# 	unlockBinding( name, package )
+# 	assign( name, value, envir = namespace )
+# 	assign( name, value, envir = package )
+# 	lockBinding(name, namespace )
+# 	lockBinding(name, package )
+# }
 
 
-.onAttach <- function(libname, pkgname){
-	hijack( "lm", lm, "stats", "package:stats" )
-	hijack( "glm", glm, "stats", "package:stats" )
-	if(exists("lm.default"))
-		hijack( "lm.default", lm, "DoE.base", "package:DoE.base" )
-	#	lm.default <- lmt
-}
+# .onAttach <- function(libname, pkgname){
+# 	hijack( "lm", lm, "stats", "package:stats" )
+# 	hijack( "glm", glm, "stats", "package:stats" )
+# 	if(exists("lm.default"))
+# 		hijack( "lm.default", lm, "DoE.base", "package:DoE.base" )
+# }
 
 
 # Effect labels

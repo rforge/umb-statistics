@@ -1,6 +1,7 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 \name{simple.glht}
+\alias{simple.glht}
 \alias{print.simple.glht}
 \title{
 Pairwise comparison with multiple testing compensation.
@@ -16,10 +17,8 @@ Pairwise comparison with multiple testing compensation.
 
 }
 \usage{
-simple.glht <- function(mod, effect, corr = c("Tukey","Bonferroni","Fisher"), level = 0.95, \dots)
-TukeyHSD(x, which, ordered = TRUE, conf.level = 0.95, \dots)
-Bonferroni(x, which, ordered = TRUE, conf.level = 0.95, \dots)
-Fisher(x, which, ordered = TRUE, conf.level = 0.95, \dots)
+simple.glht(mod, effect, corr = c("Tukey","Bonferroni","Fisher"),
+	level = 0.95, \dots)
 }
 \arguments{
  \item{mod}{A fitted model object, usually an \code{\link{lm}} or \code{\link{glm}} fit.}

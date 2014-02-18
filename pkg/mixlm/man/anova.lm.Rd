@@ -1,5 +1,6 @@
 \name{anova.lm}
 \alias{anova.lm}
+\alias{anova.lmlist}
 \alias{anova}
 \encoding{latin1}
 \title{

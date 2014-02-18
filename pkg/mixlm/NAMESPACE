@@ -1,4 +1,4 @@
-#import(stats)
+# import(stats)
 exportPattern("^[[:alpha:]]+") 
 
 #export(anova.lm, Anova.lm, AnovaMix, effect.labels, 

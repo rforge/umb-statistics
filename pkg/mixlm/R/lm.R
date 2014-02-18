@@ -1,28 +1,107 @@
 # This function replaces stats::lm, organizes fixed and random effects, removes r() from formula and parses to lm or lmer.
 
 # ANOVA (sequential SS)
-anova.lm <- function(object,...){
-	if(is.null(object$random)){
-		return(stats::anova.lm(object,...))
-	} else {
+#anova.lm <- function(object,...){
+#	if(is.null(object$random)){
+#		return(stats::anova(object,...))
+#		return(stats::anova.lm(object,...))
+#	} else {
+#		stop("Only type III error Anova() supported in mixed/random models")
+#	}
+#}
+
+anova.lm <- function(object, ...)
+{
+	if(!is.null(object$random)){
 		stop("Only type III error Anova() supported in mixed/random models")
 	}
+    if(length(list(object, ...)) > 1L)
+	return(anova.lmlist(object, ...))
+    if(!inherits(object, "lm"))
+	warning("calling anova.lm(<fake-lm-object>) ...")
+    w <- object$weights
+    ssr <- sum(if(is.null(w)) object$residuals^2 else w*object$residuals^2)
+    mss <- sum(if(is.null(w)) object$fitted.values^2 else w*object$fitted.values^2)
+    if(ssr < 1e-10*mss)
+        warning("ANOVA F-tests on an essentially perfect fit are unreliable")
+    dfr <- df.residual(object)
+    p <- object$rank
+    if(p > 0L) {
+        p1 <- 1L:p
+        comp <- object$effects[p1]
+        asgn <- object$assign[qr.lm(object)$pivot][p1]
+        nmeffects <- c("(Intercept)", attr(object$terms, "term.labels"))
+        tlabels <- nmeffects[1 + unique(asgn)]
+        ss <- c(unlist(lapply(split(comp^2,asgn), sum)), ssr)
+        df <- c(unlist(lapply(split(asgn,  asgn), length)), dfr)
+    } else {
+        ss <- ssr
+        df <- dfr
+        tlabels <- character()
+    }
+    ms <- ss/df
+    f <- ms/(ssr/dfr)
+    P <- pf(f, df, dfr, lower.tail = FALSE)
+    table <- data.frame(df, ss, ms, f, P)
+    table[length(P), 4:5] <- NA
+    dimnames(table) <- list(c(tlabels, "Residuals"),
+                            c("Df","Sum Sq", "Mean Sq", "F value", "Pr(>F)"))
+    if(attr(object$terms,"intercept")) table <- table[-1, ]
+    structure(table, heading = c("Analysis of Variance Table\n",
+		     paste("Response:", deparse(formula(object)[[2L]]))),
+	      class= c("anova", "data.frame"))# was "tabular"
 }
 
-
-Anova.lm <- function(mod,type="III", ...){
+#Anova.lm <- function(mod,type="III", ...){
+#	if(!is.null(mod$random)){
+#		if(type=="II" || type=="2"){
+#			warning("Using (default) type III error supported for mixed/random models")
+#		}
+#		return(AnovaMix(mod,...))
+#	} else {
+#		a <- car::Anova(mod, type=type, ...)
+#		a <- car:::Anova.lm(mod, type=type, ...)
+#		d <- cbind(a[2],a[1],a[1]/a[2],a[3],a[4]) # Add mean squares in Anova for linear model
+#		attr(d,"names")[3] <- "Mean Sq"
+#		class(d) <- class(a)
+#		return(d)
+#	}
+#}
+Anova.lm <- function(mod, error, type=c("II","III", 2, 3), 
+		white.adjust=c(FALSE, TRUE, "hc3", "hc0", "hc1", "hc2", "hc4"), 
+		singular.ok, ...){
 	if(!is.null(mod$random)){
 		if(type=="II" || type=="2"){
 			warning("Using (default) type III error supported for mixed/random models")
 		}
 		return(AnovaMix(mod,...))
-	} else {
-		a <- car:::Anova.lm(mod, type=type, ...)
-		d <- cbind(a[2],a[1],a[1]/a[2],a[3],a[4]) # Add mean squares in Anova for linear model
-		attr(d,"names")[3] <- "Mean Sq"
-		class(d) <- class(a)
-		return(d)
+	}		
+	type <- as.character(type)
+	white.adjust <- as.character(white.adjust)
+	type <- match.arg(type)
+	white.adjust <- match.arg(white.adjust)
+	if (missing(singular.ok)){
+		singular.ok <- type == "2" || type == "II"
 	}
+	if (has.intercept(mod) && length(coef(mod)) == 1 
+			&& (type == "2" || type == "II")) {
+		type <- "III"
+		warning("the model contains only an intercept: Type III test substituted")
+	}
+	if (white.adjust != "FALSE"){
+		if (white.adjust == "TRUE") white.adjust <- "hc3" 
+		return(Anova.default(mod, type=type, vcov.=hccm(mod, type=white.adjust), test="F", 
+						singular.ok=singular.ok))
+	}
+	a <- switch(type,
+			II=Anova.II.lm(mod, error, singular.ok=singular.ok, ...),
+			III=Anova.III.lm(mod, error, singular.ok=singular.ok, ...),
+			"2"=Anova.II.lm(mod, error, singular.ok=singular.ok, ...),
+			"3"=Anova.III.lm(mod, error, singular.ok=singular.ok,...))
+	d <- cbind(a[2],a[1],a[1]/a[2],a[3],a[4]) # Add mean squares in Anova for linear model
+	attr(d,"names")[3] <- "Mean Sq"
+	class(d) <- class(a)
+	d			
 }
 
 ## FIXME: Her antas modellen å kun inneholde faktorer, ingen andre effekter. Kan gi rare resultater!
@@ -52,9 +131,12 @@ AnovaMix <- function(object){
 	n.randoms    <- length(ind.randoms)
 					
 	# Estimate fixed effect Anova
-	fixed.model <- as.data.frame(car:::Anova.lm(object, type='III'))
+	noRandom <- object
+	noRandom$random <- NULL
+	fixed.model <- as.data.frame(Anova.lm(noRandom, type='III'))
+#	fixed.model <- as.data.frame(car:::Anova.lm(object, type='III'))
 	fixed.model <- fixed.model[-1,] # Remove intercept
-	fixed.model <- cbind(fixed.model[,c(1,2)], "Mean Sq"=fixed.model[,1]/fixed.model[,2], fixed.model[,c(3,4)])
+#	fixed.model <- cbind(fixed.model[,c(1,2)], "Mean Sq"=fixed.model[,1]/fixed.model[,2], fixed.model[,c(3,4)])
 	fixed.model <- fixed.model[c(all.effects,"Residuals"),] # Sort according to all.effects
 
 	# Check which effects should use interactions as denominators instead of error
